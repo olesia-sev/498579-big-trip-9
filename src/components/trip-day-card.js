@@ -1,4 +1,4 @@
-import {getEventEditingTemplate} from './event_editing';
+import {getEventEditingTemplate} from './event-editing';
 
 export const getDayCardTemplate = () => {
   return `

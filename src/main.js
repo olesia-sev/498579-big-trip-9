@@ -4,7 +4,7 @@ import {getFiltersTemplate} from './components/filters.js';
 
 import {getSortTemplate} from './components/sort';
 import {getCardsContainerTemplate} from './components/trip-days-container';
-import {getTripEventTemplate} from './components/trip_event.js';
+import {getTripEventTemplate} from './components/trip-event.js';
 
 const renderTemplate = (place, container, markup) => {
   container.insertAdjacentHTML(place, markup);
