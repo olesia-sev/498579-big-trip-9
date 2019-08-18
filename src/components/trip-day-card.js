@@ -1,4 +1,5 @@
 import {getEventEditingTemplate} from './event-editing';
+import {getTripEvent} from "../data";
 
 export const getDayCardTemplate = () => {
   return `
@@ -10,7 +11,7 @@ export const getDayCardTemplate = () => {
 
     <ul class="trip-events__list">
       <li class="trip-events__item">
-        ${getEventEditingTemplate()}
+        ${getEventEditingTemplate(getTripEvent())}
       </li>
     </ul>
   </li>`;
