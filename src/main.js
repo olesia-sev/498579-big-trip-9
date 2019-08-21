@@ -13,7 +13,7 @@ const renderTemplate = (place, container, markup) => {
 };
 
 const itineraryContainer = document.querySelector(`.trip-info`);
-renderTemplate(`afterbegin`, itineraryContainer, getItineraryTemplate());
+renderTemplate(`afterbegin`, itineraryContainer, getItineraryTemplate(getTripEvent()));
 
 const menuContainerTitles = document.querySelectorAll(`.trip-controls h2`);
 renderTemplate(`afterend`, menuContainerTitles[0], getMenuTemplate(getMenuData()));
@@ -28,35 +28,28 @@ renderTemplate(`beforeend`, mainContainer, getCardsContainerTemplate());
 const CARDS_AMOUNT = 3;
 const tripEventsContainer = document.querySelector(`.trip-events__list`);
 
-const sortEventsByDate = (a, b) => {
-  if (a.dateFrom > b.dateFrom) {
-    return 1;
-  }
-  if (a.dateFrom < b.dateFrom) {
-    return -1;
-  }
-  return 0;
-};
+const eventsArray = new Array(CARDS_AMOUNT)
+  .fill(``)
+  .map(getTripEvent)
+  .sort((a, b) => a.dateFrom - b.dateFrom);
 
-const getEventsArray = () => {
-  const eventsArray = [];
-  for (let i = 0; i < CARDS_AMOUNT; i++) {
-    eventsArray.push(getTripEvent());
-  }
-  return eventsArray.sort(sortEventsByDate);
-};
-
-getEventsArray().forEach((event) => {
+eventsArray.forEach((event) => {
   renderTemplate(`beforeend`, tripEventsContainer, getTripEventTemplate(event));
 });
 
-const getTotalPrice = () => {
-  const totalPriceContainer = document.querySelector(`.trip-info__cost-value`);
-  const eventPrice = document.querySelectorAll(`.event__price-value`);
+const calculateTotalPrice = () => {
   let totalPrice = 0;
-  for (let i = 0; i <= eventPrice.length - 1; i++) {
-    totalPrice += Number(eventPrice[i].textContent);
-  }
-  totalPriceContainer.textContent = totalPrice.toString();
+  eventsArray.forEach((item) => {
+    totalPrice += item.price;
+
+    item.offers.forEach((offer) => {
+      if (offer.isApplied) {
+        totalPrice += offer.price;
+      }
+    });
+  });
+  return totalPrice;
 };
-getTotalPrice();
+calculateTotalPrice();
+
+document.querySelector(`.trip-info__cost-value`).textContent = calculateTotalPrice();

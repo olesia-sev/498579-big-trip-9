@@ -74,9 +74,9 @@ export const getEventEditingTemplate = ({cities, dateFrom, dateTo, description, 
         <label class="event__label  event__type-output" for="event-destination-1">
           Sightseeing at
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${Array.from(cities)[0]}" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${cities[0]}" list="destination-list-1">
         <datalist id="destination-list-1">
-            ${Array.from(cities).map((city) => `<option value="${city}"></option>`).join(``)}
+            ${cities.map((city) => `<option value="${city}"></option>`).join(``)}
         </datalist>
       </div>
   

@@ -1,5 +1,5 @@
 export const getRandomBoolean = () => {
-  return Boolean(Math.round(Math.random()));
+  return Math.random() >= 0.5;
 };
 
 export const getRandomArrayIndex = (arr) => {

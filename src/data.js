@@ -30,19 +30,17 @@ const offers = [
     isApplied: getRandomBoolean()
   }
 ];
-const typesIn = [`check-in`, `restaurant`, `sightseeing`];
-const typesTo = [`bus`, `drive`, `flight`, `ship`, `taxi`, `train`, `transport`, `trip`];
-const types = new Set([
-  ...typesIn,
-  ...typesTo
-]);
 
-const getTitle = (type) => {
+const typesIn = new Set([`check-in`, `restaurant`, `sightseeing`]);
+const typesTo = new Set([`bus`, `drive`, `flight`, `ship`, `taxi`, `train`, `transport`, `trip`]);
+const types = [...typesIn, ...typesTo];
+
+const getTypeTitle = (type) => {
   switch (true) {
-    case typesIn.includes(type): {
+    case typesIn.has(type): {
       return `${capitalizeFirstLetter(type)} in`;
     }
-    case typesTo.includes(type): {
+    case typesTo.has(type): {
       return `${capitalizeFirstLetter(type)} to`;
     }
     default: {
@@ -52,7 +50,7 @@ const getTitle = (type) => {
 };
 
 const getRandomType = () => {
-  return [...types][getRandomArrayIndex([...types])];
+  return types[getRandomArrayIndex(types)];
 };
 
 const getRandomDescription = () => {
@@ -75,27 +73,27 @@ const getRandomOffers = () => {
 
 const getRandomPictures = () => {
   const picturesLength = getRandomInRange(1, 4);
-  const pictures = new Set();
+  const pictures = [];
   for (let i = 0; i < picturesLength; i++) {
-    pictures.add(`http://picsum.photos/300/150?r=${Math.random()}`);
+    pictures.push(`http://picsum.photos/300/150?r=${Math.random()}`);
   }
   return pictures;
 };
+
+const cities = [
+  `Saint Petersburg`,
+  `Geneva`,
+  `Amsterdam`,
+  `London`,
+  `Oslo`
+];
 
 const getTripEvent = () => {
   const type = getRandomType();
   return {
     type,
-    title: getTitle(type),
-    cities: new Set([
-      `Saint Petersburg`,
-      `Geneva`,
-      `Amsterdam`,
-      `London`,
-      `New York`,
-      `Oslo`,
-      `Paris`
-    ]),
+    title: getTypeTitle(type),
+    cities,
     dateFrom: getRandomTimestamp(),
     dateTo: getRandomTimestamp(),
     sightsImagesSrc: getRandomPictures(),
