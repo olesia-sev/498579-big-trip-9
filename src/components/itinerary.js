@@ -14,7 +14,7 @@ export const getItineraryTemplate = (eventsArray) => {
   }
 
   let dateStartTimestamp = eventsArray[0].dateFrom;
-  let dateEndTimestamp = eventsArray[eventsArray.length - 1].dateFrom;
+  let dateEndTimestamp = eventsArray[eventsArray.length - 1].dateTo;
 
   return `
   <div class="trip-info__main">
