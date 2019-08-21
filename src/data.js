@@ -80,7 +80,7 @@ const getRandomPictures = () => {
   return pictures;
 };
 
-const cities = [
+export const cities = [
   `Saint Petersburg`,
   `Geneva`,
   `Amsterdam`,
@@ -93,7 +93,7 @@ const getTripEvent = () => {
   return {
     type,
     title: getTypeTitle(type),
-    cities,
+    city: cities[getRandomArrayIndex(cities)],
     dateFrom: getRandomTimestamp(),
     dateTo: getRandomTimestamp(),
     sightsImagesSrc: getRandomPictures(),

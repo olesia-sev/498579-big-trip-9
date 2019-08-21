@@ -12,9 +12,6 @@ const renderTemplate = (place, container, markup) => {
   container.insertAdjacentHTML(place, markup);
 };
 
-const itineraryContainer = document.querySelector(`.trip-info`);
-renderTemplate(`afterbegin`, itineraryContainer, getItineraryTemplate(getTripEvent()));
-
 const menuContainerTitles = document.querySelectorAll(`.trip-controls h2`);
 renderTemplate(`afterend`, menuContainerTitles[0], getMenuTemplate(getMenuData()));
 
@@ -28,7 +25,7 @@ renderTemplate(`beforeend`, mainContainer, getCardsContainerTemplate());
 const CARDS_AMOUNT = 3;
 const tripEventsContainer = document.querySelector(`.trip-events__list`);
 
-const eventsArray = new Array(CARDS_AMOUNT)
+export const eventsArray = new Array(CARDS_AMOUNT)
   .fill(``)
   .map(getTripEvent)
   .sort((a, b) => a.dateFrom - b.dateFrom);
@@ -36,6 +33,9 @@ const eventsArray = new Array(CARDS_AMOUNT)
 eventsArray.forEach((event) => {
   renderTemplate(`beforeend`, tripEventsContainer, getTripEventTemplate(event));
 });
+
+const itineraryContainer = document.querySelector(`.trip-info`);
+renderTemplate(`afterbegin`, itineraryContainer, getItineraryTemplate(eventsArray));
 
 const calculateTotalPrice = () => {
   let totalPrice = 0;
