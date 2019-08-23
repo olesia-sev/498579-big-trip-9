@@ -1,6 +1,3 @@
-// import {TripEvent} from './trip-event';
-// import {getTripEvent} from "../data";
-
 export const getDayCardTemplate = () => {
   return `
   <li class="trip-days__item  day">

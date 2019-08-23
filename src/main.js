@@ -33,10 +33,6 @@ export const eventsArray = new Array(CARDS_AMOUNT)
   .map(getTripEvent)
   .sort((a, b) => a.dateFrom - b.dateFrom);
 
-// eventsArray.forEach((event) => {
-//   renderTemplate(`beforeend`, tripEventsContainer, getTripEventTemplate(event));
-// });
-
 const itineraryContainer = document.querySelector(`.trip-info`);
 renderTemplate(`afterbegin`, itineraryContainer, getItineraryTemplate(eventsArray));
 
