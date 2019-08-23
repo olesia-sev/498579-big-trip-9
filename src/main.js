@@ -6,7 +6,10 @@ import {getFiltersTemplate} from './components/filters.js';
 
 import {getSortTemplate} from './components/sort';
 import {getCardsContainerTemplate} from './components/trip-days-container';
-import {getTripEventTemplate} from './components/trip-event.js';
+import {TripEvent} from './components/trip-event.js';
+import {EventEdit} from './components/event-editing.js';
+
+import {Position, render, isEscEvent} from './utils';
 
 const renderTemplate = (place, container, markup) => {
   container.insertAdjacentHTML(place, markup);
@@ -30,9 +33,9 @@ export const eventsArray = new Array(CARDS_AMOUNT)
   .map(getTripEvent)
   .sort((a, b) => a.dateFrom - b.dateFrom);
 
-eventsArray.forEach((event) => {
-  renderTemplate(`beforeend`, tripEventsContainer, getTripEventTemplate(event));
-});
+// eventsArray.forEach((event) => {
+//   renderTemplate(`beforeend`, tripEventsContainer, getTripEventTemplate(event));
+// });
 
 const itineraryContainer = document.querySelector(`.trip-info`);
 renderTemplate(`afterbegin`, itineraryContainer, getItineraryTemplate(eventsArray));
@@ -53,3 +56,44 @@ const calculateTotalPrice = () => {
 calculateTotalPrice();
 
 document.querySelector(`.trip-info__cost-value`).textContent = calculateTotalPrice();
+
+const renderEvent = (tripEventElem) => {
+  const tripEvent = new TripEvent(tripEventElem);
+  const eventEdit = new EventEdit(tripEventElem);
+
+  const onEscKeyDown = (evt) => {
+    isEscEvent(evt, closeEditForm);
+  };
+
+  const showEditForm = () => {
+    tripEventsContainer.replaceChild(eventEdit.getElement(), tripEvent.getElement());
+    document.addEventListener(`keydown`, onEscKeyDown);
+  };
+
+  const closeEditForm = () => {
+    tripEventsContainer.replaceChild(tripEvent.getElement(), eventEdit.getElement());
+    document.removeEventListener(`keydown`, onEscKeyDown);
+  };
+
+  tripEvent.getElement()
+    .querySelector(`.event__rollup-btn`)
+    .addEventListener(`click`, showEditForm);
+
+  eventEdit.getElement()
+    .querySelector(`.event__save-btn`)
+    .addEventListener(`click`, closeEditForm);
+
+  eventEdit.getElement()
+    .querySelector(`.event__reset-btn`)
+    .addEventListener(`click`, closeEditForm);
+
+  eventEdit.getElement()
+    .addEventListener(`submit`, closeEditForm);
+
+  render(tripEventsContainer, tripEvent.getElement(), Position.BEFOREEND);
+
+};
+
+eventsArray.forEach((tripEvent) => {
+  renderEvent(tripEvent);
+});
