@@ -9,21 +9,44 @@ export class TripController {
   constructor(container, events) {
     this._container = container; // trip-events
     this._events = events; // array of objects with events
-
     this._eventsDaysList = new EventsDaysList(); // контейнер для дней - trip-days
-    this._dayElement = new DayElement(); // li trip-days__item  day
-    this._eventsList = new EventsList(); // trip-events__list
   }
 
   init() {
-    render(this._container, this._eventsDaysList.getElement(), Position.BEFOREEND);
-    render(this._eventsDaysList.getElement(), this._dayElement.getElement(), Position.BEFOREEND);
-    render(this._dayElement.getElement(), this._eventsList.getElement(), Position.BEFOREEND);
+    // Создадим объект с упорядоченными по датам массивами событий
+    // { 2019-01-01: [ {event1}, {event2}, ... ], ... }
+    const eventsByDays = this._events.reduce((acc, event) => {
+      const date = new Date(event.dateFrom);
+      const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDay()}`;
+      if (!Array.isArray(acc[key])) {
+        acc[key] = [];
+      }
+      acc[key].push(event);
+      return acc;
+    }, {});
 
-    this._events.forEach((tripEvent) => this._renderEvent(tripEvent));
+    // Отрендерим контейнер для списка всех дней
+    render(this._container, this._eventsDaysList.getElement(), Position.BEFOREEND);
+
+    // Разделим объект с упорядоченными по датам массивами событий через Object.entries,
+    // таким образом мы получим массив массивов вида
+    // [ [ 2019-01-01, [ {event1}, {event2} ] ], ... ].
+    // Затем, переберём его: на каждой итерации (количество итераций = количеству дней)
+    // будем создавать контейнер для дня (dayElement) и контейнер для событий в этом дне (eventsList).
+    // Затем, переберем события в текущем дне:
+    // на каждой итерации будем создавать карточку события и рендерить её внутри eventsList
+    Object.entries(eventsByDays).forEach(([/* dateAsKey */, tripEvents]) => {
+      const dayElement = new DayElement().getElement(); // li trip-days__item  day
+      const eventsList = new EventsList().getElement(); // trip-events__list
+      render(this._eventsDaysList.getElement(), dayElement, Position.BEFOREEND);
+      tripEvents.forEach((tripEvent) => {
+        render(dayElement, eventsList, Position.BEFOREEND);
+        this._renderEvent(eventsList, tripEvent);
+      });
+    });
   }
 
-  _renderEvent(tripEventElem) {
+  _renderEvent(eventsList, tripEventElem) {
     const tripEvent = new TripEvent(tripEventElem);
     const eventEdit = new EventEdit(tripEventElem);
 
@@ -32,12 +55,12 @@ export class TripController {
     };
 
     const showEditForm = () => {
-      this._eventsList.getElement().replaceChild(eventEdit.getElement(), tripEvent.getElement());
+      eventsList.replaceChild(eventEdit.getElement(), tripEvent.getElement());
       document.addEventListener(`keydown`, onEscKeyDown);
     };
 
     const closeEditForm = () => {
-      this._eventsList.getElement().replaceChild(tripEvent.getElement(), eventEdit.getElement());
+      eventsList.replaceChild(tripEvent.getElement(), eventEdit.getElement());
       document.removeEventListener(`keydown`, onEscKeyDown);
     };
 
@@ -56,6 +79,6 @@ export class TripController {
     eventEdit.getElement()
       .addEventListener(`submit`, closeEditForm);
 
-    render(this._eventsList.getElement(), tripEvent.getElement(), Position.BEFOREEND);
+    render(eventsList, tripEvent.getElement(), Position.BEFOREEND);
   }
 }
