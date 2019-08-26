@@ -1,8 +1,9 @@
 import {cities} from '../data';
-import {createElement} from '../utils';
+import {AbstractComponent} from "./absctract-component";
 
-export class EventEdit {
+export class EventEdit extends AbstractComponent {
   constructor({type, title, city, dateFrom, dateTo, description, sightsImagesSrc, isFavourite}) {
+    super();
     this._type = type;
     this._title = title;
     this._city = city;
@@ -11,18 +12,6 @@ export class EventEdit {
     this._description = description;
     this._sightsImagesSrc = sightsImagesSrc;
     this._isFavourite = isFavourite;
-    this._element = null;
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 
   getTemplate() {
