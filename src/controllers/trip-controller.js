@@ -17,7 +17,7 @@ export class TripController {
     // { 2019-01-01: [ {event1}, {event2}, ... ], ... }
     const eventsByDays = this._events.reduce((acc, event) => {
       const date = new Date(event.dateFrom);
-      const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDay()}`;
+      const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
       if (!Array.isArray(acc[key])) {
         acc[key] = [];
       }
@@ -35,10 +35,13 @@ export class TripController {
     // будем создавать контейнер для дня (dayElement) и контейнер для событий в этом дне (eventsList).
     // Затем, переберем события в текущем дне:
     // на каждой итерации будем создавать карточку события и рендерить её внутри eventsList
-    Object.entries(eventsByDays).forEach(([/* dateAsKey */, tripEvents]) => {
-      const dayElement = new DayElement().getElement(); // li trip-days__item  day
+    Object.entries(eventsByDays).forEach(([dateAsKey, tripEvents]) => {
+
+      const dayElement = new DayElement(dateAsKey).getElement(); // li trip-days__item  day
       const eventsList = new EventsList().getElement(); // trip-events__list
+
       render(this._eventsDaysList.getElement(), dayElement, Position.BEFOREEND);
+
       tripEvents.forEach((tripEvent) => {
         render(dayElement, eventsList, Position.BEFOREEND);
         this._renderEvent(eventsList, tripEvent);
