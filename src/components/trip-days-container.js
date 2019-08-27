@@ -1,8 +1,7 @@
-import {getDayCardTemplate} from './trip-day-card';
+import {AbstractComponent} from './absctract-component';
 
-export const getCardsContainerTemplate = () => {
-  return `
-  <ul class="trip-days">
-    ${getDayCardTemplate()}
-  </ul>`;
-};
+export class EventsDaysList extends AbstractComponent {
+  getTemplate() {
+    return `<ul class="trip-days"> </ul>`;
+  }
+}

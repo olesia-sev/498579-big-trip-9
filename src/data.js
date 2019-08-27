@@ -8,6 +8,8 @@ const sentences = Array.from(
       })
 );
 
+export const monthShortNames = [`JAN`, `FEB`, `MAR`, `APR`, `MAY`, `JUN`, `JUL`, `AUG`, `SEP`, `OCT`, `NOV`, `DEC`];
+
 const offers = [
   {
     name: `Add luggage`,

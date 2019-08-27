@@ -1,15 +1,11 @@
-import {getTripEvent, getMenuData, getFiltersData} from './data.js';
+import {getTripEvent, getMenuData, getFiltersData} from './data';
 
-import {getItineraryTemplate} from './components/itinerary.js';
-import {getMenuTemplate} from './components/menu.js';
-import {getFiltersTemplate} from './components/filters.js';
+import {getItineraryTemplate} from './components/itinerary';
+import {getMenuTemplate} from './components/menu';
+import {getFiltersTemplate} from './components/filters';
 
 import {getSortTemplate} from './components/sort';
-import {getCardsContainerTemplate} from './components/trip-days-container';
-import {TripEvent} from './components/trip-event.js';
-import {EventEdit} from './components/event-editing.js';
-
-import {Position, render, isEscEvent} from './utils';
+import {TripController} from './controllers/trip-controller';
 
 const renderTemplate = (place, container, markup) => {
   container.insertAdjacentHTML(place, markup);
@@ -23,15 +19,15 @@ renderTemplate(`afterend`, menuContainerTitles[1], getFiltersTemplate(getFilters
 const mainContainer = document.querySelector(`.trip-events`);
 renderTemplate(`beforeend`, mainContainer, getSortTemplate());
 
-renderTemplate(`beforeend`, mainContainer, getCardsContainerTemplate());
-
 const CARDS_AMOUNT = 3;
-const tripEventsContainer = document.querySelector(`.trip-events__list`);
 
 export const eventsArray = new Array(CARDS_AMOUNT)
   .fill(``)
   .map(getTripEvent)
   .sort((a, b) => a.dateFrom - b.dateFrom);
+
+const eventsContainerController = new TripController(mainContainer, eventsArray);
+eventsContainerController.init();
 
 const itineraryContainer = document.querySelector(`.trip-info`);
 renderTemplate(`afterbegin`, itineraryContainer, getItineraryTemplate(eventsArray));
@@ -52,44 +48,3 @@ const calculateTotalPrice = () => {
 calculateTotalPrice();
 
 document.querySelector(`.trip-info__cost-value`).textContent = calculateTotalPrice();
-
-const renderEvent = (tripEventElem) => {
-  const tripEvent = new TripEvent(tripEventElem);
-  const eventEdit = new EventEdit(tripEventElem);
-
-  const onEscKeyDown = (evt) => {
-    isEscEvent(evt, closeEditForm);
-  };
-
-  const showEditForm = () => {
-    tripEventsContainer.replaceChild(eventEdit.getElement(), tripEvent.getElement());
-    document.addEventListener(`keydown`, onEscKeyDown);
-  };
-
-  const closeEditForm = () => {
-    tripEventsContainer.replaceChild(tripEvent.getElement(), eventEdit.getElement());
-    document.removeEventListener(`keydown`, onEscKeyDown);
-  };
-
-  tripEvent.getElement()
-    .querySelector(`.event__rollup-btn`)
-    .addEventListener(`click`, showEditForm);
-
-  eventEdit.getElement()
-    .querySelector(`.event__save-btn`)
-    .addEventListener(`click`, closeEditForm);
-
-  eventEdit.getElement()
-    .querySelector(`.event__reset-btn`)
-    .addEventListener(`click`, closeEditForm);
-
-  eventEdit.getElement()
-    .addEventListener(`submit`, closeEditForm);
-
-  render(tripEventsContainer, tripEvent.getElement(), Position.BEFOREEND);
-
-};
-
-eventsArray.forEach((tripEvent) => {
-  renderEvent(tripEvent);
-});
