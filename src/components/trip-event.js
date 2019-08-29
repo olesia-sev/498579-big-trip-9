@@ -1,12 +1,13 @@
 import {AbstractComponent} from './absctract-component';
 
 export class TripEvent extends AbstractComponent {
-  constructor({type, title, dateFrom, dateTo, price, offers}) {
+  constructor({type, title, dateFrom, dateTo, duration, price, offers}) {
     super();
     this._type = type;
     this._title = title;
     this._dateFrom = dateFrom;
     this._dateTo = dateTo;
+    this._duration = duration;
     this._price = price;
     this._offers = offers;
   }
@@ -25,7 +26,7 @@ export class TripEvent extends AbstractComponent {
             &mdash;
             <time class="event__end-time" datetime="2019-03-18T11:00">${new Date(this._dateTo).toLocaleTimeString()}</time>
           </p>
-          <p class="event__duration">1H 30M</p>
+          <p class="event__duration">${this._duration.getHours()}H ${this._duration.getMinutes()}M</p>
         </div>
       
         <p class="event__price">
