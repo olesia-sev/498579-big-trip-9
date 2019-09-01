@@ -92,18 +92,15 @@ export const cities = [
 
 const getTripEvent = () => {
   const type = getRandomType();
-  const dateFrom = getRandomTimestamp();
-  const dateTo = getRandomTimestamp();
-  const duration = new Date();
-  duration.setHours(getRandomInRange(1, 12));
-  duration.setMinutes(getRandomInRange(0, 59));
+  const dateFrom = getRandomTimestamp() + getRandomInRange(1000, 20000);
+  const dateTo = dateFrom + getRandomInRange(100000, 200000000);
+
   return {
     type,
     title: getTypeTitle(type),
     city: cities[getRandomArrayIndex(cities)],
     dateFrom,
     dateTo,
-    duration,
     sightsImagesSrc: getRandomPictures(),
     description: getRandomDescription(),
     price: getRandomInRange(10, 2500),

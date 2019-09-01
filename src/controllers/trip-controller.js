@@ -12,6 +12,7 @@ export class TripController {
     this._events = events; // array of objects with events
     this._eventsDaysList = new EventsDaysList(); // контейнер для дней - trip-days
     this._sort = new Sort();
+    this._sortType = `event`;
   }
 
   init() {
@@ -106,24 +107,13 @@ export class TripController {
     render(eventsList, tripEvent.getElement(), Position.BEFOREEND);
   }
 
-  _onSortLinkClick(evt) {
-
-    if (!evt.target.dataset.sortType) {
-      return;
-    }
-
-    this._eventsDaysList.getElement().innerHTML = ``;
-
-    const sortType = evt.target.dataset.sortType;
-
+  _getSortedEvents() {
     let sortedEvents = [];
 
-    switch (sortType) {
+    switch (this._sortType) {
       case `time`:
         sortedEvents = [...this._events].sort((a, b) => {
-          const durationA = a.duration.getHours() * 60 + a.duration.getMinutes();
-          const durationB = b.duration.getHours() * 60 + b.duration.getMinutes();
-          return durationA - durationB;
+          return (a.dateTo - a.dateFrom) - (b.dateTo - b.dateFrom);
         });
         break;
 
@@ -136,13 +126,31 @@ export class TripController {
         break;
     }
 
-    if (sortType === `event`) {
+    return sortedEvents;
+  }
+
+  _render() {
+    this._eventsDaysList.getElement().innerHTML = ``;
+
+    const sortedEvents = this._getSortedEvents();
+
+    if (this._sortType === `event`) {
       this._renderEventsByDays(sortedEvents);
     } else {
       this._renderEvents(sortedEvents);
     }
 
-    this._sort.getElement().querySelector(`.trip-sort__item--day`).innerHTML = sortType === `event` ? `Day` : ``;
+    this._sort.getElement().querySelector(`.trip-sort__item--day`).innerHTML = this._sortType === `event` ? `Day` : ``;
+  }
+
+  _onSortLinkClick(evt) {
+    if (!evt.target.dataset.sortType) {
+      return;
+    }
+
+    this._sortType = evt.target.dataset.sortType;
+
+    this._render();
   }
 
 }
