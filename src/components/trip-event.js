@@ -11,6 +11,26 @@ export class TripEvent extends AbstractComponent {
     this._offers = offers;
   }
 
+  _getDurationTemplateString() {
+    const duration = this._dateTo - this._dateFrom;
+    const durationHours = Math.floor(duration / (1000 * 3600)) % 60;
+    const durationMinutes = Math.floor(duration / (1000 * 60)) % 60;
+    const durationDays = Math.floor(durationHours / 24);
+
+    const result = [];
+    if (durationDays > 0) {
+      result.push(durationDays < 10 ? `0${durationDays}D` : `${durationDays}D`);
+    }
+
+    if (durationHours > 0) {
+      result.push(durationHours < 10 ? `0${durationHours}H` : `${durationHours}H`);
+    }
+
+    result.push(durationMinutes < 10 ? `0${durationMinutes}M` : `${durationMinutes}M`);
+
+    return result.join(` `);
+  }
+
   getTemplate() {
     return `<li class="trip-events__item">
       <div class="event">
@@ -21,11 +41,11 @@ export class TripEvent extends AbstractComponent {
       
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="2019-03-18T10:30">${new Date(this._dateFrom - 10000).toLocaleTimeString()}</time>
+            <time class="event__start-time" datetime="2019-03-18T10:30">${new Date(this._dateFrom).toLocaleTimeString()}</time>
             &mdash;
             <time class="event__end-time" datetime="2019-03-18T11:00">${new Date(this._dateTo).toLocaleTimeString()}</time>
           </p>
-          <p class="event__duration">1H 30M</p>
+          <p class="event__duration">${this._getDurationTemplateString()}</p>
         </div>
       
         <p class="event__price">

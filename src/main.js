@@ -4,7 +4,6 @@ import {getItineraryTemplate} from './components/itinerary';
 import {getMenuTemplate} from './components/menu';
 import {getFiltersTemplate} from './components/filters';
 
-import {getSortTemplate} from './components/sort';
 import {TripController} from './controllers/trip-controller';
 
 const renderTemplate = (place, container, markup) => {
@@ -17,7 +16,6 @@ renderTemplate(`afterend`, menuContainerTitles[0], getMenuTemplate(getMenuData()
 renderTemplate(`afterend`, menuContainerTitles[1], getFiltersTemplate(getFiltersData()));
 
 const mainContainer = document.querySelector(`.trip-events`);
-renderTemplate(`beforeend`, mainContainer, getSortTemplate());
 
 const CARDS_AMOUNT = 3;
 
