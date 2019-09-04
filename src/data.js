@@ -10,26 +10,36 @@ const sentences = Array.from(
 
 export const monthShortNames = [`JAN`, `FEB`, `MAR`, `APR`, `MAY`, `JUN`, `JUL`, `AUG`, `SEP`, `OCT`, `NOV`, `DEC`];
 
-const offers = [
+export const offers = [
   {
     name: `Add luggage`,
-    price: 10,
-    isApplied: getRandomBoolean()
+    price: 30,
+    isApplied: getRandomBoolean(),
+    id: `event-offer-luggage`
   },
   {
     name: `Switch to comfort class`,
-    price: 150,
-    isApplied: getRandomBoolean()
+    price: 100,
+    isApplied: getRandomBoolean(),
+    id: `event-offer-comfort`
   },
   {
     name: `Add meal`,
-    price: 2,
-    isApplied: getRandomBoolean()
+    price: 15,
+    isApplied: getRandomBoolean(),
+    id: `event-offer-meal`
   },
   {
     name: `Choose seats`,
-    price: 9,
-    isApplied: getRandomBoolean()
+    price: 5,
+    isApplied: getRandomBoolean(),
+    id: `event-offer-seats`
+  },
+  {
+    name: `Travel by train`,
+    price: 40,
+    isApplied: getRandomBoolean(),
+    id: `event-offer-train`
   }
 ];
 
@@ -37,7 +47,7 @@ const typesIn = new Set([`check-in`, `restaurant`, `sightseeing`]);
 const typesTo = new Set([`bus`, `drive`, `flight`, `ship`, `taxi`, `train`, `transport`, `trip`]);
 const types = [...typesIn, ...typesTo];
 
-const getTypeTitle = (type) => {
+export const getTypeTitle = (type) => {
   switch (true) {
     case typesIn.has(type): {
       return `${capitalizeFirstLetter(type)} in`;
@@ -104,7 +114,7 @@ const getTripEvent = () => {
     sightsImagesSrc: getRandomPictures(),
     description: getRandomDescription(),
     price: getRandomInRange(10, 2500),
-    offers: getRandomOffers(),
+    offers,
     isFavourite: getRandomBoolean()
   };
 };

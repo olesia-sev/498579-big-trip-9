@@ -5,6 +5,7 @@ import {getMenuTemplate} from './components/menu';
 import {getFiltersTemplate} from './components/filters';
 
 import {TripController} from './controllers/trip-controller';
+import {PointController} from './controllers/point-controller';
 
 const renderTemplate = (place, container, markup) => {
   container.insertAdjacentHTML(place, markup);

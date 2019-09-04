@@ -7,6 +7,7 @@ export class TripEvent extends AbstractComponent {
     this._title = title;
     this._dateFrom = dateFrom;
     this._dateTo = dateTo;
+    this._offers = offers;
     this._price = price;
     this._offers = offers;
   }
