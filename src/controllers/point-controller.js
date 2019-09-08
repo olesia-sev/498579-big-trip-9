@@ -44,11 +44,8 @@ export class PointController {
       .addEventListener(`click`, closeEditForm);
 
     this._eventEdit.getElement()
-      .addEventListener(`submit`, closeEditForm);
-
-    this._eventEdit.getElement()
-      .querySelector(`.event__save-btn`)
-      .addEventListener(`click`, (evt) => {
+      .querySelector(`form.event--edit`)
+      .addEventListener(`submit`, (evt) => {
         evt.preventDefault();
 
         // Получение данных с формы
@@ -77,6 +74,8 @@ export class PointController {
 
         document.querySelector(`.trip-info__cost-value`).textContent = calculateTotalPrice().toString();
         document.removeEventListener(`keydown`, onEscKeyDown);
+
+        closeEditForm();
       });
 
     render(this._container, this._tripEvent.getElement(), Position.BEFOREEND);
