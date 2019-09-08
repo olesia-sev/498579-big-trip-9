@@ -57,3 +57,17 @@ export const isEscEvent = (evt, action) => {
 export const replaceElements = (container, newChild, oldChild) => {
   container.replaceChild(newChild, oldChild);
 };
+
+const dateParser = /(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2}):(\d{2})/;
+export const toTimestamp = (dateString) => {
+  const match = dateString.match(dateParser);
+  const date = new Date(
+      match[3], // year
+      match[2] - 1, // monthIndex
+      match[1], // day
+      match[4], // hours
+      match[5], // minutes
+      match[6] // seconds
+  );
+  return date.getTime();
+};

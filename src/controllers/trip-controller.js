@@ -1,10 +1,10 @@
 import {EventsDaysList} from '../components/trip-days-container';
-import {isEscEvent, Position, render} from '../utils';
-import {TripEvent} from '../components/trip-event';
+import {Position, render} from '../utils';
 import {DayElement} from '../components/trip-day-card';
-import {EventEdit} from '../components/event-editing';
+import {DayInfo} from '../components/day-info';
 import {EventsList} from '../components/events-list';
 import {Sort} from '../components/sort';
+import {PointController} from '../controllers/point-controller';
 
 export class TripController {
   constructor(container, events) {
@@ -13,6 +13,10 @@ export class TripController {
     this._eventsDaysList = new EventsDaysList(); // контейнер для дней - trip-days
     this._sort = new Sort();
     this._sortType = `event`;
+
+    this._subscriptions = [];
+    this._onDataChange = this._onDataChange.bind(this);
+    this._onChangeView = this._onChangeView.bind(this);
   }
 
   init() {
@@ -30,7 +34,9 @@ export class TripController {
   _renderEvents(events) {
     const dayElement = new DayElement().getElement(); // li trip-days__item  day
     const eventsList = new EventsList().getElement(); // trip-events__list
+    const dayInfo = new DayInfo().getElement();
 
+    render(dayElement, dayInfo, Position.BEFOREEND);
     dayElement.querySelector(`.day__info`).innerHTML = ``;
     render(this._eventsDaysList.getElement(), dayElement, Position.BEFOREEND);
 
@@ -61,50 +67,21 @@ export class TripController {
     // Затем, переберем события в текущем дне:
     // на каждой итерации будем создавать карточку события и рендерить её внутри eventsList
     Object.entries(eventsByDays).forEach(([dateAsKey, tripEvents]) => {
-      const dayElement = new DayElement(dateAsKey).getElement(); // li trip-days__item  day
+      const dayElement = new DayElement().getElement(); // li trip-days__item  day
+      const dayInfo = new DayInfo(dateAsKey).getElement();
       const eventsList = new EventsList().getElement(); // trip-events__list
       render(this._eventsDaysList.getElement(), dayElement, Position.BEFOREEND);
       tripEvents.forEach((tripEvent) => {
+        render(dayElement, dayInfo, Position.BEFOREEND);
         render(dayElement, eventsList, Position.BEFOREEND);
         this._renderEvent(eventsList, tripEvent);
       });
     });
   }
 
-  _renderEvent(eventsList, tripEventElem) {
-    const tripEvent = new TripEvent(tripEventElem);
-    const eventEdit = new EventEdit(tripEventElem);
-
-    const onEscKeyDown = (evt) => {
-      isEscEvent(evt, closeEditForm);
-    };
-
-    const showEditForm = () => {
-      eventsList.replaceChild(eventEdit.getElement(), tripEvent.getElement());
-      document.addEventListener(`keydown`, onEscKeyDown);
-    };
-
-    const closeEditForm = () => {
-      eventsList.replaceChild(tripEvent.getElement(), eventEdit.getElement());
-      document.removeEventListener(`keydown`, onEscKeyDown);
-    };
-
-    tripEvent.getElement()
-      .querySelector(`.event__rollup-btn`)
-      .addEventListener(`click`, showEditForm);
-
-    eventEdit.getElement()
-      .querySelector(`.event__save-btn`)
-      .addEventListener(`click`, closeEditForm);
-
-    eventEdit.getElement()
-      .querySelector(`.event__reset-btn`)
-      .addEventListener(`click`, closeEditForm);
-
-    eventEdit.getElement()
-      .addEventListener(`submit`, closeEditForm);
-
-    render(eventsList, tripEvent.getElement(), Position.BEFOREEND);
+  _renderEvent(container, event) {
+    const pointController = new PointController(container, event, this._onDataChange, this._onChangeView);
+    this._subscriptions.push(pointController.setDefaultView.bind(pointController));
   }
 
   _getSortedEvents() {
@@ -151,6 +128,16 @@ export class TripController {
     this._sortType = evt.target.dataset.sortType;
 
     this._render();
+  }
+
+  _onDataChange(newData, oldData) {
+    this._events[this._events.findIndex((i) => i === oldData)] = newData;
+
+    this._render(this._events);
+  }
+
+  _onChangeView() {
+    this._subscriptions.forEach((it) => it());
   }
 
 }

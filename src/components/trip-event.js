@@ -1,14 +1,19 @@
 import {AbstractComponent} from './absctract-component';
 
 export class TripEvent extends AbstractComponent {
-  constructor({type, title, dateFrom, dateTo, price, offers}) {
+  constructor({type, title, city, dateFrom, dateTo, price, offers}) {
     super();
     this._type = type;
     this._title = title;
+    this._city = city;
     this._dateFrom = dateFrom;
     this._dateTo = dateTo;
+    this._offers = TripEvent._getOffersForTemplate(offers, 3);
     this._price = price;
-    this._offers = offers;
+  }
+
+  static _getOffersForTemplate(offers, maxOffers) {
+    return offers.filter((offer) => offer.isApplied).slice(0, maxOffers);
   }
 
   _getDurationTemplateString() {
@@ -37,7 +42,7 @@ export class TripEvent extends AbstractComponent {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${this._type}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${this._title} airport</h3>
+        <h3 class="event__title">${this._title} ${this._city}</h3>
       
         <div class="event__schedule">
           <p class="event__time">
