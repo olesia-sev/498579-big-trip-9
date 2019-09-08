@@ -34,11 +34,10 @@ export const calculateTotalPrice = () => {
   return eventsArray.reduce((sum, event) => {
     sum += Number(event.price);
     sum += event.offers
-      .filter((offer) => {
-        return offer.isApplied;
-      })
       .reduce((offersSum, offer) => {
-        offersSum += Number(offer.price);
+        if (offer.isApplied) {
+          offersSum += Number(offer.price);
+        }
         return offersSum;
       }, 0);
     return sum;

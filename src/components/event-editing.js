@@ -17,11 +17,10 @@ export class EventEdit extends AbstractComponent {
     this._sightsImagesSrc = sightsImagesSrc;
     this._isFavourite = isFavourite;
 
-    this._changeDescriptionByDestPoint();
     this._fillImages();
-    this._changeImagesByDestPoint();
     this._fillAvailableOffers();
     this._changeEventType();
+    this._changeInfoByDestPoint();
   }
 
   _fillAvailableOffers() {
@@ -178,18 +177,24 @@ export class EventEdit extends AbstractComponent {
   </li>`;
   }
 
-  _changeDescriptionByDestPoint() {
+  _changeInfoByDestPoint() {
     this.getElement()
       .querySelector(`.event__input--destination`)
       .addEventListener(`change`, (evt) => {
         const currentTarget = evt.currentTarget;
         const currentCity = destinations.find(({city}) => city === currentTarget.value);
-        if (currentCity) {
-          this.getElement().querySelector(`.event__destination-description`).textContent = currentCity.description;
-        } else {
-          this.getElement().querySelector(`.event__destination-description`).textContent = ``;
-        }
+
+        this._changeDescriptionByDestPoint(currentCity);
+        this._changeImagesByDestPoint(currentCity);
       });
+  }
+
+  _changeDescriptionByDestPoint(currentCity) {
+    if (currentCity) {
+      this.getElement().querySelector(`.event__destination-description`).textContent = currentCity.description;
+    } else {
+      this.getElement().querySelector(`.event__destination-description`).textContent = ``;
+    }
   }
 
   _fillImages() {
@@ -201,16 +206,9 @@ export class EventEdit extends AbstractComponent {
     this.getElement().querySelector(`.event__photos-tape`).insertAdjacentHTML(Position.BEFOREEND, imagesHtml);
   }
 
-  _changeImagesByDestPoint() {
-    this.getElement()
-      .querySelector(`.event__input--destination`)
-      .addEventListener(`change`, (evt) => {
-        const currentTarget = evt.currentTarget;
-        const currentCity = destinations.find(({city}) => city === currentTarget.value);
-
-        this._sightsImagesSrc = currentCity.picsUrl;
-        this._fillImages();
-      });
+  _changeImagesByDestPoint(currentCity) {
+    this._sightsImagesSrc = currentCity.picsUrl;
+    this._fillImages();
   }
 
   _changeEventType() {

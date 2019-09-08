@@ -168,14 +168,16 @@ const getTripEvent = () => {
   const dateFrom = getRandomTimestamp() + getRandomInRange(1000, 20000);
   const dateTo = dateFrom + getRandomInRange(100000, 200000000);
 
+  const getRandomDestinationIndex = getRandomArrayIndex(destinations);
+
   return {
     type,
     title: getTypeTitle(type),
-    city: destinations[getRandomArrayIndex(destinations)].city,
+    city: destinations[getRandomDestinationIndex].city,
     dateFrom,
     dateTo,
-    sightsImagesSrc: destinations[getRandomArrayIndex(destinations)].picsUrl,
-    description: destinations[getRandomArrayIndex(destinations)].description,
+    sightsImagesSrc: destinations[getRandomDestinationIndex].picsUrl,
+    description: destinations[getRandomDestinationIndex].description,
     price: getRandomInRange(10, 2500),
     offers: getRandomAppliedOffersByType(type),
     isFavourite: getRandomBoolean()

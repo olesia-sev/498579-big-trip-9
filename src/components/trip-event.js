@@ -8,19 +8,12 @@ export class TripEvent extends AbstractComponent {
     this._city = city;
     this._dateFrom = dateFrom;
     this._dateTo = dateTo;
-    this._offers = this._getOffersForTemplate(offers, 3);
+    this._offers = TripEvent._getOffersForTemplate(offers, 3);
     this._price = price;
   }
 
-  _getOffersForTemplate(offers, maxOffers) {
-    let offersCount = 0;
-    return offers.reduce((acc, offer) => {
-      offersCount += 1;
-      if (offersCount <= maxOffers) {
-        acc.push(offer);
-      }
-      return acc;
-    }, []);
+  static _getOffersForTemplate(offers, maxOffers) {
+    return offers.filter((offer) => offer.isApplied).slice(0, maxOffers);
   }
 
   _getDurationTemplateString() {

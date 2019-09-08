@@ -2,11 +2,6 @@ export const getRandomBoolean = () => {
   return Math.random() >= 0.5;
 };
 
-export const getRandomObjectProperty = (obj) => {
-  const keys = Object.keys(obj);
-  return obj[keys[keys.length * Math.random() << 0]];
-};
-
 export const getRandomArrayIndex = (arr) => {
   return Math.floor(Math.random() * arr.length);
 };
