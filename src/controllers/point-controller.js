@@ -1,17 +1,18 @@
 import {TripEvent} from "../components/trip-event";
 import {EventEdit} from "../components/event-editing";
-import {isEscEvent, Position, render} from "../utils";
-import {offers, getTypeTitle} from '../data';
+import {isEscEvent, Position, render, toTimestamp} from "../utils";
+import {getTypeTitle, getOffersByType} from '../data';
+import {calculateTotalPrice} from '../main';
 
 export class PointController {
 
-  constructor(container, events, onDataChange, onChangeView) {
+  constructor(container, event, onDataChange, onChangeView) {
     this._container = container; // trip-events
-    this._event = events; // array of objects with events
+    this._event = event;
     this._onDataChange = onDataChange;
     this._onChangeView = onChangeView;
-    this._tripEvent = new TripEvent(events);
-    this._eventEdit = new EventEdit(events);
+    this._tripEvent = new TripEvent(event);
+    this._eventEdit = new EventEdit(event);
 
     this.init();
   }
@@ -53,14 +54,18 @@ export class PointController {
         // Получение данных с формы
         const formData = new FormData(this._eventEdit.getElement().querySelector(`.event--edit`));
 
+        const checkedTypeInput = this._eventEdit.getElement().querySelector(`.event__type-input:checked`);
+
+        const type = checkedTypeInput.value;
+
         const entry = Object.assign({}, this._event, {
-          type: formData.get(`event-type`),
-          title: getTypeTitle(formData.get(`event-type`)),
+          type,
+          title: getTypeTitle(type),
           city: formData.get(`event-destination`),
-          dateFrom: formData.get(`event-start-time`),
-          dateTo: formData.get(`event-end-time`),
+          dateFrom: toTimestamp(formData.get(`event-start-time`)),
+          dateTo: toTimestamp(formData.get(`event-end-time`)),
           price: formData.get(`event-price`),
-          offers: offers.map((offer) => {
+          offers: getOffersByType(type).map((offer) => {
             return Object.assign({}, offer, {
               isApplied: formData.get(`${offer.id}`) === `on`
             });
@@ -70,6 +75,7 @@ export class PointController {
 
         this._onDataChange(entry, this._event);
 
+        document.querySelector(`.trip-info__cost-value`).textContent = calculateTotalPrice().toString();
         document.removeEventListener(`keydown`, onEscKeyDown);
       });
 

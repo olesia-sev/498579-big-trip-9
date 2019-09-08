@@ -1,18 +1,42 @@
-import {cities} from '../data';
+import {destinations, getOffersByType, getTypeTitle} from '../data';
 import {AbstractComponent} from "./absctract-component";
+import {Position} from "../utils";
 
 export class EventEdit extends AbstractComponent {
-  constructor({type, title, city, dateFrom, dateTo, offers, description, sightsImagesSrc, isFavourite}) {
+  constructor({type, title, city, dateFrom, dateTo, offers, price, description, sightsImagesSrc, isFavourite}) {
     super();
     this._type = type;
     this._title = title;
     this._city = city;
+    this._cities = destinations.map((item) => item.city);
     this._dateFrom = dateFrom;
     this._dateTo = dateTo;
     this._offers = offers;
+    this._price = price;
     this._description = description;
     this._sightsImagesSrc = sightsImagesSrc;
     this._isFavourite = isFavourite;
+
+    this._changeDescriptionByDestPoint();
+    this._fillImages();
+    this._changeImagesByDestPoint();
+    this._fillAvailableOffers();
+    this._changeEventType();
+  }
+
+  _fillAvailableOffers() {
+    this.getElement().querySelector(`.event__available-offers`).innerHTML = ``;
+    let availableOffersHtml = ``;
+    this._offers.forEach((item) => {
+      availableOffersHtml += `<div class="event__offer-selector">
+          <input class="event__offer-checkbox  visually-hidden" id="${item.id}-1" type="checkbox" name="${item.id}" ${item.isApplied ? `checked` : ``}>
+          <label class="event__offer-label" for="${item.id}-1">
+            <span class="event__offer-title">${item.name}</span>
+            &plus;&euro;&nbsp;<span class="event__offer-price">${item.price}</span>
+          </label>
+        </div>`;
+    });
+    this.getElement().querySelector(`.event__available-offers`).insertAdjacentHTML(Position.BEFOREEND, availableOffersHtml);
   }
 
   getTemplate() {
@@ -93,7 +117,7 @@ export class EventEdit extends AbstractComponent {
           </label>
           <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._city}" list="destination-list-1">
           <datalist id="destination-list-1">
-              ${cities.map((item) => `<option value="${item}"></option>`).join(``)}
+              ${this._cities.map((item) => `<option value="${item}"></option>`).join(``)}
           </datalist>
         </div>
     
@@ -114,7 +138,7 @@ export class EventEdit extends AbstractComponent {
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="160">
+          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${this._price}">
         </div>
     
         <button class="event__save-btn btn  btn--blue" type="submit">Save</button>
@@ -138,16 +162,7 @@ export class EventEdit extends AbstractComponent {
         <section class="event__section  event__section--offers">
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
     
-          <div class="event__available-offers">
-            ${this._offers.map((item) => `<div class="event__offer-selector">
-              <input class="event__offer-checkbox  visually-hidden" id="${item.id}-1" type="checkbox" name="${item.id}" ${item.isApplied ? `checked` : ``}>
-              <label class="event__offer-label" for="${item.id}-1">
-                <span class="event__offer-title">${item.name}</span>
-                &plus;
-                &euro;&nbsp;<span class="event__offer-price">${item.price}</span>
-              </label>
-            </div>`).join(``)}
-          </div>
+          <div class="event__available-offers"></div>
         </section>
     
         <section class="event__section  event__section--destination">
@@ -155,13 +170,63 @@ export class EventEdit extends AbstractComponent {
           <p class="event__destination-description">${this._description}</p>
     
           <div class="event__photos-container">
-            <div class="event__photos-tape">
-              ${this._sightsImagesSrc.map((src) => `<img class="event__photo" src="${src}" alt="Event photo">`).join(``)}
-            </div>
+            <div class="event__photos-tape"></div>
           </div>
         </section>
       </section>
     </form>
   </li>`;
   }
+
+  _changeDescriptionByDestPoint() {
+    this.getElement()
+      .querySelector(`.event__input--destination`)
+      .addEventListener(`change`, (evt) => {
+        const currentTarget = evt.currentTarget;
+        const currentCity = destinations.find(({city}) => city === currentTarget.value);
+        if (currentCity) {
+          this.getElement().querySelector(`.event__destination-description`).textContent = currentCity.description;
+        } else {
+          this.getElement().querySelector(`.event__destination-description`).textContent = ``;
+        }
+      });
+  }
+
+  _fillImages() {
+    this.getElement().querySelector(`.event__photos-tape`).innerHTML = ``;
+    let imagesHtml = ``;
+    this._sightsImagesSrc.forEach((src) => {
+      imagesHtml += `<img class="event__photo" src="${src}" alt="Event photo">`;
+    });
+    this.getElement().querySelector(`.event__photos-tape`).insertAdjacentHTML(Position.BEFOREEND, imagesHtml);
+  }
+
+  _changeImagesByDestPoint() {
+    this.getElement()
+      .querySelector(`.event__input--destination`)
+      .addEventListener(`change`, (evt) => {
+        const currentTarget = evt.currentTarget;
+        const currentCity = destinations.find(({city}) => city === currentTarget.value);
+
+        this._sightsImagesSrc = currentCity.picsUrl;
+        this._fillImages();
+      });
+  }
+
+  _changeEventType() {
+    const typeRadios = this.getElement().querySelectorAll(`.event__type-input`);
+    const IMG_PATH = `img/icons/`;
+    let typeIcon = this.getElement().querySelector(`.event__type-icon`);
+    let typeTitle = this.getElement().querySelector(`.event__type-output`);
+
+    typeRadios.forEach((radio) => {
+      radio.addEventListener(`change`, () => {
+        typeIcon.src = `${IMG_PATH}${radio.value}.png`;
+        typeTitle.textContent = getTypeTitle(radio.value);
+        this._offers = getOffersByType(radio.value);
+        this._fillAvailableOffers();
+      });
+    });
+  }
+
 }

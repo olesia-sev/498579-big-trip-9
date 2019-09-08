@@ -34,7 +34,9 @@ export class TripController {
   _renderEvents(events) {
     const dayElement = new DayElement().getElement(); // li trip-days__item  day
     const eventsList = new EventsList().getElement(); // trip-events__list
+    const dayInfo = new DayInfo().getElement();
 
+    render(dayElement, dayInfo, Position.BEFOREEND);
     dayElement.querySelector(`.day__info`).innerHTML = ``;
     render(this._eventsDaysList.getElement(), dayElement, Position.BEFOREEND);
 
@@ -77,8 +79,8 @@ export class TripController {
     });
   }
 
-  _renderEvent(container, events) {
-    const pointController = new PointController(container, events, this._onDataChange, this._onChangeView);
+  _renderEvent(container, event) {
+    const pointController = new PointController(container, event, this._onDataChange, this._onChangeView);
     this._subscriptions.push(pointController.setDefaultView.bind(pointController));
   }
 

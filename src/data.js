@@ -10,42 +10,80 @@ const sentences = Array.from(
 
 export const monthShortNames = [`JAN`, `FEB`, `MAR`, `APR`, `MAY`, `JUN`, `JUL`, `AUG`, `SEP`, `OCT`, `NOV`, `DEC`];
 
-export const offers = [
-  {
-    name: `Add luggage`,
-    price: 30,
-    isApplied: getRandomBoolean(),
-    id: `event-offer-luggage`
-  },
-  {
-    name: `Switch to comfort class`,
-    price: 100,
-    isApplied: getRandomBoolean(),
-    id: `event-offer-comfort`
-  },
-  {
-    name: `Add meal`,
-    price: 15,
-    isApplied: getRandomBoolean(),
-    id: `event-offer-meal`
-  },
-  {
-    name: `Choose seats`,
-    price: 5,
-    isApplied: getRandomBoolean(),
-    id: `event-offer-seats`
-  },
-  {
-    name: `Travel by train`,
-    price: 40,
-    isApplied: getRandomBoolean(),
-    id: `event-offer-train`
-  }
-];
+export const offers = {
+  in: [
+    {
+      name: `Add luggage`,
+      price: 30,
+      id: `event-offer-luggage`
+    },
+    {
+      name: `Switch to comfort class`,
+      price: 100,
+      id: `event-offer-comfort`
+    },
+    {
+      name: `Add meal`,
+      price: 15,
+      id: `event-offer-meal`
+    },
+    {
+      name: `Choose seats`,
+      price: 5,
+      id: `event-offer-seats`
+    },
+    {
+      name: `Travel by train`,
+      price: 40,
+      id: `event-offer-train`
+    }
+  ],
+  to: [
+    {
+      name: `Travel by train123`,
+      price: 30,
+      id: `event-offer-luggage`
+    },
+    {
+      name: `Choose seats123`,
+      price: 100,
+      id: `event-offer-comfort`
+    },
+    {
+      name: `Add meal test`,
+      price: 15,
+      id: `event-offer-meal`
+    },
+    {
+      name: `Switch to comfort class test`,
+      price: 5,
+      id: `event-offer-seats`
+    },
+    {
+      name: `Add luggage test`,
+      price: 40,
+      id: `event-offer-train`
+    }
+  ]
+};
 
 const typesIn = new Set([`check-in`, `restaurant`, `sightseeing`]);
 const typesTo = new Set([`bus`, `drive`, `flight`, `ship`, `taxi`, `train`, `transport`, `trip`]);
 const types = [...typesIn, ...typesTo];
+
+export const getOffersByType = (type) => {
+  switch (true) {
+    case typesIn.has(type): {
+      return offers.in;
+    }
+    case typesTo.has(type): {
+      return offers.to;
+    }
+    default: {
+      return [];
+    }
+  }
+};
 
 export const getTypeTitle = (type) => {
   switch (true) {
@@ -74,13 +112,10 @@ const getRandomDescription = () => {
   return Array.from(description).join(` `);
 };
 
-const getRandomOffers = () => {
-  const offersLength = getRandomInRange(0, 2);
-  const offersItems = new Set();
-  for (let i = 0; i < offersLength; i++) {
-    offersItems.add(offers[getRandomArrayIndex(offers)]);
-  }
-  return Array.from(offersItems);
+const getRandomAppliedOffersByType = (type) => {
+  return getOffersByType(type).map((offer) => {
+    return Object.assign({}, offer, {isApplied: getRandomBoolean()});
+  });
 };
 
 const getRandomPictures = () => {
@@ -100,6 +135,34 @@ export const cities = [
   `Oslo`
 ];
 
+export const destinations = [
+  {
+    city: `Saint Petersburg`,
+    description: getRandomDescription(),
+    picsUrl: getRandomPictures()
+  },
+  {
+    city: `Geneva`,
+    description: getRandomDescription(),
+    picsUrl: getRandomPictures()
+  },
+  {
+    city: `Amsterdam`,
+    description: getRandomDescription(),
+    picsUrl: getRandomPictures()
+  },
+  {
+    city: `London`,
+    description: getRandomDescription(),
+    picsUrl: getRandomPictures()
+  },
+  {
+    city: `Oslo`,
+    description: getRandomDescription(),
+    picsUrl: getRandomPictures()
+  }
+];
+
 const getTripEvent = () => {
   const type = getRandomType();
   const dateFrom = getRandomTimestamp() + getRandomInRange(1000, 20000);
@@ -108,13 +171,13 @@ const getTripEvent = () => {
   return {
     type,
     title: getTypeTitle(type),
-    city: cities[getRandomArrayIndex(cities)],
+    city: destinations[getRandomArrayIndex(destinations)].city,
     dateFrom,
     dateTo,
-    sightsImagesSrc: getRandomPictures(),
-    description: getRandomDescription(),
+    sightsImagesSrc: destinations[getRandomArrayIndex(destinations)].picsUrl,
+    description: destinations[getRandomArrayIndex(destinations)].description,
     price: getRandomInRange(10, 2500),
-    offers,
+    offers: getRandomAppliedOffersByType(type),
     isFavourite: getRandomBoolean()
   };
 };

@@ -2,6 +2,11 @@ export const getRandomBoolean = () => {
   return Math.random() >= 0.5;
 };
 
+export const getRandomObjectProperty = (obj) => {
+  const keys = Object.keys(obj);
+  return obj[keys[keys.length * Math.random() << 0]];
+};
+
 export const getRandomArrayIndex = (arr) => {
   return Math.floor(Math.random() * arr.length);
 };
@@ -56,4 +61,18 @@ export const isEscEvent = (evt, action) => {
 
 export const replaceElements = (container, newChild, oldChild) => {
   container.replaceChild(newChild, oldChild);
+};
+
+const dateParser = /(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2}):(\d{2})/;
+export const toTimestamp = (dateString) => {
+  const match = dateString.match(dateParser);
+  const date = new Date(
+      match[3], // year
+      match[2] - 1, // monthIndex
+      match[1], // day
+      match[4], // hours
+      match[5], // minutes
+      match[6] // seconds
+  );
+  return date.getTime();
 };

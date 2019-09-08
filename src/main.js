@@ -5,7 +5,6 @@ import {getMenuTemplate} from './components/menu';
 import {getFiltersTemplate} from './components/filters';
 
 import {TripController} from './controllers/trip-controller';
-import {PointController} from './controllers/point-controller';
 
 const renderTemplate = (place, container, markup) => {
   container.insertAdjacentHTML(place, markup);
@@ -31,19 +30,19 @@ eventsContainerController.init();
 const itineraryContainer = document.querySelector(`.trip-info`);
 renderTemplate(`afterbegin`, itineraryContainer, getItineraryTemplate(eventsArray));
 
-const calculateTotalPrice = () => {
-  let totalPrice = 0;
-  eventsArray.forEach((item) => {
-    totalPrice += item.price;
-
-    item.offers.forEach((offer) => {
-      if (offer.isApplied) {
-        totalPrice += offer.price;
-      }
-    });
-  });
-  return totalPrice;
+export const calculateTotalPrice = () => {
+  return eventsArray.reduce((sum, event) => {
+    sum += Number(event.price);
+    sum += event.offers
+      .filter((offer) => {
+        return offer.isApplied;
+      })
+      .reduce((offersSum, offer) => {
+        offersSum += Number(offer.price);
+        return offersSum;
+      }, 0);
+    return sum;
+  }, 0);
 };
-calculateTotalPrice();
 
-document.querySelector(`.trip-info__cost-value`).textContent = calculateTotalPrice();
+document.querySelector(`.trip-info__cost-value`).textContent = calculateTotalPrice().toString();
