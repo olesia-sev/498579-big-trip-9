@@ -1,4 +1,7 @@
 const path = require(`path`);
+const moment = require(`moment`);
+const MomentLocalesPlugin = require(`moment-locales-webpack-plugin`);
+
 module.exports = {
   mode: `development`,
   entry: `./src/main.js`,
@@ -14,5 +17,17 @@ module.exports = {
     publicPath: `http://localhost:8080/`,
     compress: true,
     watchContentBase: true
-  }
+  },
+  module: {
+    rules: [
+      {
+        test: /\.css$/i,
+        use: [`style-loader`, `css-loader`],
+      },
+    ],
+  },
+  plugins: [
+    // To strip all locales except “en”
+    new MomentLocalesPlugin(),
+  ],
 };

@@ -1,4 +1,6 @@
 import {AbstractComponent} from './absctract-component';
+import moment from "moment";
+import {MOMENT_TIME_FORMAT} from "../utils";
 
 export class TripEvent extends AbstractComponent {
   constructor({type, title, city, dateFrom, dateTo, price, offers}) {
@@ -10,30 +12,11 @@ export class TripEvent extends AbstractComponent {
     this._dateTo = dateTo;
     this._offers = TripEvent._getOffersForTemplate(offers, 3);
     this._price = price;
+    this._duration = moment(this._dateTo - this._dateFrom).format(`DD[D] h[H] mm[M]`);
   }
 
   static _getOffersForTemplate(offers, maxOffers) {
     return offers.filter((offer) => offer.isApplied).slice(0, maxOffers);
-  }
-
-  _getDurationTemplateString() {
-    const duration = this._dateTo - this._dateFrom;
-    const durationHours = Math.floor(duration / (1000 * 3600)) % 60;
-    const durationMinutes = Math.floor(duration / (1000 * 60)) % 60;
-    const durationDays = Math.floor(durationHours / 24);
-
-    const result = [];
-    if (durationDays > 0) {
-      result.push(durationDays < 10 ? `0${durationDays}D` : `${durationDays}D`);
-    }
-
-    if (durationHours > 0) {
-      result.push(durationHours < 10 ? `0${durationHours}H` : `${durationHours}H`);
-    }
-
-    result.push(durationMinutes < 10 ? `0${durationMinutes}M` : `${durationMinutes}M`);
-
-    return result.join(` `);
   }
 
   getTemplate() {
@@ -46,11 +29,11 @@ export class TripEvent extends AbstractComponent {
       
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time" datetime="2019-03-18T10:30">${new Date(this._dateFrom).toLocaleTimeString()}</time>
+            <time class="event__start-time">${moment(this._dateFrom).format(MOMENT_TIME_FORMAT)}</time>
             &mdash;
-            <time class="event__end-time" datetime="2019-03-18T11:00">${new Date(this._dateTo).toLocaleTimeString()}</time>
+            <time class="event__end-time">${moment(this._dateTo).format(MOMENT_TIME_FORMAT)}</time>
           </p>
-          <p class="event__duration">${this._getDurationTemplateString()}</p>
+          <p class="event__duration">${this._duration}</p>
         </div>
       
         <p class="event__price">

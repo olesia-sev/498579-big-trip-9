@@ -58,7 +58,11 @@ export const replaceElements = (container, newChild, oldChild) => {
   container.replaceChild(newChild, oldChild);
 };
 
-const dateParser = /(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2}):(\d{2})/;
+export const FLATPICKER_DATE_TIME_FORMAT = `d.m.Y H:i`;
+export const MOMENT_DATE_TIME_FORMAT = `DD.MM.YYYY HH:mm`;
+export const MOMENT_TIME_FORMAT = `HH:mm`;
+
+const dateParser = /(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2})/;
 export const toTimestamp = (dateString) => {
   const match = dateString.match(dateParser);
   const date = new Date(
@@ -66,8 +70,7 @@ export const toTimestamp = (dateString) => {
       match[2] - 1, // monthIndex
       match[1], // day
       match[4], // hours
-      match[5], // minutes
-      match[6] // seconds
+      match[5] // minutes
   );
   return date.getTime();
 };
