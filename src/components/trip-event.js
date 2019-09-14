@@ -12,11 +12,39 @@ export class TripEvent extends AbstractComponent {
     this._dateTo = dateTo;
     this._offers = TripEvent._getOffersForTemplate(offers, 3);
     this._price = price;
-    this._duration = moment(this._dateTo - this._dateFrom).format(`DD[D] h[H] mm[M]`);
+
+    this._getDuration();
   }
 
   static _getOffersForTemplate(offers, maxOffers) {
     return offers.filter((offer) => offer.isApplied).slice(0, maxOffers);
+  }
+
+  _getDuration() {
+    const duration = moment.duration(this._dateTo - this._dateFrom);
+    const months = duration.months();
+    const days = duration.days();
+    const hours = duration.hours();
+    const minutes = duration.minutes();
+
+    const result = [];
+
+    if (months > 0) {
+      result.push(months < 10 ? `0${months}M` : `${months}M`);
+    }
+
+    if (days > 0) {
+      result.push(days < 10 ? `0${days}D` : `${days}D`);
+    }
+
+    if (hours > 0) {
+      result.push(hours < 10 ? `0${hours}H` : `${hours}H`);
+    }
+
+    if (minutes > 0) {
+      result.push(minutes < 10 ? `0${minutes}M` : `${minutes}M`);
+    }
+    return result.join(` `);
   }
 
   getTemplate() {
@@ -33,7 +61,7 @@ export class TripEvent extends AbstractComponent {
             &mdash;
             <time class="event__end-time">${moment(this._dateTo).format(MOMENT_TIME_FORMAT)}</time>
           </p>
-          <p class="event__duration">${this._duration}</p>
+          <p class="event__duration">${this._getDuration()}</p>
         </div>
       
         <p class="event__price">
