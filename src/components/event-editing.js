@@ -1,6 +1,10 @@
+import 'flatpickr/dist/themes/light.css';
+import flatpickr from 'flatpickr';
+import moment from 'moment';
+
 import {destinations, getOffersByType, getTypeTitle} from '../data';
-import {AbstractComponent} from "./absctract-component";
-import {Position} from "../utils";
+import {AbstractComponent} from './absctract-component';
+import {FLATPICKER_DATE_TIME_FORMAT, MOMENT_DATE_TIME_FORMAT, Position} from '../utils';
 
 export class EventEdit extends AbstractComponent {
   constructor({type, title, city, dateFrom, dateTo, offers, price, description, sightsImagesSrc, isFavourite}) {
@@ -17,10 +21,39 @@ export class EventEdit extends AbstractComponent {
     this._sightsImagesSrc = sightsImagesSrc;
     this._isFavourite = isFavourite;
 
+    this._flatpickrInit();
     this._fillImages();
     this._fillAvailableOffers();
     this._changeEventType();
     this._changeInfoByDestPoint();
+  }
+
+  _flatpickrInit() {
+
+    let startPickr = flatpickr(this.getElement().querySelector(`#event-start-time-1`), {
+      dateFormat: FLATPICKER_DATE_TIME_FORMAT,
+      enableTime: true,
+      // eslint-disable-next-line camelcase
+      time_24hr: true,
+      defaultDate: this._dateFrom,
+      maxDate: this._dateTo,
+      onClose(selectedDates, dateStr) {
+        endPickr.set(`minDate`, dateStr);
+      },
+    });
+
+    let endPickr = flatpickr(this.getElement().querySelector(`#event-end-time-1`), {
+      dateFormat: FLATPICKER_DATE_TIME_FORMAT,
+      enableTime: true,
+      // eslint-disable-next-line camelcase
+      time_24hr: true,
+      defaultDate: this._dateTo,
+      minDate: this._dateFrom,
+      onClose(selectedDates, dateStr) {
+        startPickr.set(`maxDate`, dateStr);
+      },
+    });
+
   }
 
   _fillAvailableOffers() {
@@ -124,12 +157,12 @@ export class EventEdit extends AbstractComponent {
           <label class="visually-hidden" for="event-start-time-1">
             From
           </label>
-          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${new Date(this._dateFrom).toLocaleDateString()} ${new Date(this._dateFrom).toLocaleTimeString()}">
+          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${moment(this._dateFrom).format(MOMENT_DATE_TIME_FORMAT)}">
           &mdash;
           <label class="visually-hidden" for="event-end-time-1">
             To
           </label>
-          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${new Date(this._dateTo).toLocaleDateString()} ${new Date(this._dateTo).toLocaleTimeString()}">
+          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${moment(this._dateTo).format(MOMENT_DATE_TIME_FORMAT)}">
         </div>
     
         <div class="event__field-group  event__field-group--price">

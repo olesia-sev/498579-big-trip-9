@@ -1,5 +1,5 @@
 import {AbstractComponent} from './absctract-component';
-import {monthShortNames} from '../data';
+import moment from "moment";
 
 export class DayInfo extends AbstractComponent {
   constructor(dateFrom) {
@@ -9,9 +9,9 @@ export class DayInfo extends AbstractComponent {
 
   getTemplate() {
     return `<div class="day__info">
-      <span class="day__counter">${this._dateFrom.getDate()}</span>
+      <span class="day__counter">${moment(this._dateFrom).format(`DD`)}</span>
       <time class="day__date" datetime="${this._dateFrom.getFullYear()}-${this._dateFrom.getMonth() + 1}-${this._dateFrom.getDate()}">
-        ${monthShortNames[this._dateFrom.getMonth() + 1]} ${this._dateFrom.getFullYear()}
+        ${moment(this._dateFrom).format(`MMM YY`)}
       </time>
     </div>`;
   }

@@ -1,3 +1,5 @@
+import moment from "moment";
+
 export const getItineraryTemplate = (eventsArray) => {
   let citiesList = eventsArray.map(({city}) => {
     return city;
@@ -22,7 +24,7 @@ export const getItineraryTemplate = (eventsArray) => {
       ${citiesList.join(` &mdash; `)}
     </h1>
     <p class="trip-info__dates">
-        ${new Date(dateStartTimestamp).toLocaleDateString()} &mdash; ${new Date(dateEndTimestamp).toLocaleDateString()}
+        ${moment(dateStartTimestamp).format(`DD MMM`)} &mdash; ${moment(dateEndTimestamp).format(`DD MMM`)}
      </p>
   </div>`;
 };
