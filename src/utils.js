@@ -20,8 +20,34 @@ export const getRandomTimestamp = () => {
 };
 
 export const Position = {
-  AFTEREND: `afterend`,
-  BEFOREEND: `beforeend`
+  BEFORE_BEGIN: `beforebegin`, // Вставить узлы или строки до container
+  AFTER_BEGIN: `afterbegin`, // Вставить узлы или строки в начало container
+  BEFORE_END: `beforeend`, // Вставить узлы или строки в конец container
+  AFTER_END: `afterend`, // Вставить узлы или строки после container
+};
+
+/**
+ * <!-- beforebegin -->
+ * <p>
+ * <!-- afterbegin -->
+ * foo
+ * <!-- beforeend -->
+ * </p>
+ * <!-- afterend -->
+ */
+const PositionsMap = {
+  beforebegin: {
+    method: `before` // Вставить узлы или строки до container
+  },
+  afterbegin: {
+    method: `prepend` // Вставить узлы или строки в начало container
+  },
+  beforeend: {
+    method: `append` // Вставить узлы или строки в конец container
+  },
+  afterend: {
+    method: `after` // Вставить узлы или строки после container
+  }
 };
 
 export const createElement = (template) => {
@@ -30,20 +56,21 @@ export const createElement = (template) => {
   return newElement.firstChild;
 };
 
-export const render = (container, elem, place) => {
-  switch (place) {
-    case Position.AFTEREND:
-      container.prepend(elem);
-      break;
-    case Position.BEFOREEND:
-      container.append(elem);
-      break;
+export const render = (container, element, place) => {
+  if (element === ``) {
+    container.innerHTML = ``;
+    return;
   }
-};
 
-export const unrender = (elem) => {
-  if (elem) {
-    elem.remove();
+  const htmlElement = element instanceof HTMLElement ? element : createElement(element);
+
+  if (htmlElement) {
+    if (Object.keys(PositionsMap).includes(place)) {
+      container[PositionsMap[place].method](htmlElement);
+    } else {
+      // Заменяет container заданными узлами или строками
+      container.replaceWith(htmlElement);
+    }
   }
 };
 
@@ -52,10 +79,6 @@ export const isEscEvent = (evt, action) => {
   if (evt.keyCode === ESC_KEYCODE) {
     action();
   }
-};
-
-export const replaceElements = (container, newChild, oldChild) => {
-  container.replaceChild(newChild, oldChild);
 };
 
 export const FLATPICKER_DATE_TIME_FORMAT = `d.m.Y H:i`;
@@ -73,4 +96,16 @@ export const toTimestamp = (dateString) => {
       match[5] // minutes
   );
   return date.getTime();
+};
+
+export const Mode = {
+  ADDING: `adding`,
+  DEFAULT: `default`,
+};
+
+export const finishNewEventCreationEvtName = `finish-new-event-creation`;
+
+// Быстрое глубокое клонирвание объекта, чтобы данные не менялись по ссылке
+export const clone = (obj) => {
+  return JSON.parse(JSON.stringify(obj));
 };
