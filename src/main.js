@@ -1,5 +1,5 @@
 import {getTripEvent, getMenuItems/* , getFiltersData */} from './data';
-import {finishNewEventCreationEvtName, Position, render} from "./utils";
+import {calculateTotalPriceEvtName, finishNewEventCreationEvtName, Position, render} from "./utils";
 import {getItineraryTemplate} from './templates/itinerary';
 import {Menu} from './components/menu';
 // import {getFiltersTemplate} from './components/filters';
@@ -50,8 +50,8 @@ document.addEventListener(finishNewEventCreationEvtName, () => {
 });
 
 // Считает общую стоимость
-export const calculateTotalPrice = () => {
-  return eventsArray.reduce((sum, event) => {
+document.addEventListener(calculateTotalPriceEvtName, ({detail}) => {
+  const totalPrice = detail.reduce((sum, event) => {
     sum += Number(event.price);
     sum += event.offers
       .reduce((offersSum, offer) => {
@@ -62,7 +62,7 @@ export const calculateTotalPrice = () => {
       }, 0);
     return sum;
   }, 0);
-};
-
-// Вставляет общую стоимость в шапку
-document.querySelector(`.trip-info__cost-value`).textContent = calculateTotalPrice().toString();
+  // Вставляет общую стоимость в шапку
+  document.querySelector(`.trip-info__cost-value`).textContent = totalPrice.toString();
+});
+document.dispatchEvent(new CustomEvent(calculateTotalPriceEvtName, {detail: eventsArray}));

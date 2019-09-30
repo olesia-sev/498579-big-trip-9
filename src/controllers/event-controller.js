@@ -11,7 +11,7 @@ export class EventController extends AbstractEventController {
 
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
     this._showEditForm = this._showEditForm.bind(this);
-    this._closeEditForm = this._closeEditForm.bind(this);
+    this.closeEditForm = this.closeEditForm.bind(this);
   }
 
   init() {
@@ -26,7 +26,7 @@ export class EventController extends AbstractEventController {
   }
 
   _onEscKeyDown(evt) {
-    EventController._onEscKeyDown(evt, this._closeEditForm);
+    EventController._onEscKeyDown(evt, this.closeEditForm);
   }
 
   _showEditForm() {
@@ -36,8 +36,8 @@ export class EventController extends AbstractEventController {
       .querySelector(`form.event--edit`)
       .addEventListener(`submit`, (evt) => {
         evt.preventDefault();
-        this._save(this._component.getElement().querySelector(`form.event--edit`));
-        this._closeEditForm();
+        this._save(this._component.getData());
+        this.closeEditForm();
       });
 
     this._component.getElement().querySelector(`.event__reset-btn`)
@@ -51,7 +51,7 @@ export class EventController extends AbstractEventController {
     document.addEventListener(`keydown`, this._onEscKeyDown);
   }
 
-  _closeEditForm() {
+  closeEditForm() {
     if (this._component) {
       if (this._container.contains(this._component.getElement())) {
         this._container.replaceChild(this._tripEvent.getElement(), this._component.getElement());
@@ -59,9 +59,5 @@ export class EventController extends AbstractEventController {
       this._component.removeElement();
       document.removeEventListener(`keydown`, this._onEscKeyDown);
     }
-  }
-
-  setDefaultView() {
-    this._closeEditForm();
   }
 }

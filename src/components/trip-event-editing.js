@@ -1,9 +1,9 @@
 import 'flatpickr/dist/themes/light.css';
 import flatpickr from 'flatpickr';
 import moment from 'moment';
-import {destinations, getCityInfo, getOffersByType, getTypeTitle} from '../data';
+import {cities, destinations, getCityInfo, getOffersByType, getTypeTitle} from '../data';
 import {AbstractComponent} from './absctract-component';
-import {FLATPICKER_DATE_TIME_FORMAT, MOMENT_DATE_TIME_FORMAT, Mode, render, Position} from '../utils';
+import {FLATPICKER_DATE_TIME_FORMAT, MOMENT_DATE_TIME_FORMAT, Mode, render, Position, clone} from '../utils';
 import {getEventTypeLabelTemplate, getEventTypesTemplate} from "../templates/event-type";
 import {
   getDestinationSectionTemplate,
@@ -54,10 +54,19 @@ export class TripEventEditing extends AbstractComponent {
     this._flatpickrInit();
     this._setEventHandlerOnCityChange();
     this._setEventHandlerOnEventTypeChange();
+    this._setEventHandlerOffersChange();
+    this._setEventHandlerOnPriceChange();
 
     if (this._mode === Mode.DEFAULT) {
       this._setEventHandlerOnFavouriteChange();
     }
+  }
+
+  /**
+   * @return {{offers: *, city: *, price: *, dateTo: *, type: *, dateFrom: *, isFavourite: *}|*}
+   */
+  getData() {
+    return this._data;
   }
 
   /**
@@ -102,8 +111,12 @@ export class TripEventEditing extends AbstractComponent {
     this.getElement()
       .querySelector(`.event__input--destination`)
       .addEventListener(`change`, (evt) => {
-        const currentTarget = evt.currentTarget;
-        let {description, picsUrl} = getCityInfo(currentTarget.value) || {};
+        const {value} = evt.currentTarget;
+        if (!cities.includes(value)) {
+          return;
+        }
+        let {description, picsUrl} = getCityInfo(value) || {};
+        this._data.city = value;
         this._data.description = description || ``;
         this._data.picsUrl = picsUrl || [];
 
@@ -118,11 +131,14 @@ export class TripEventEditing extends AbstractComponent {
           // Если в DOM есть section event__details,
           // отрендерим section для description и picsUrl в конце этого event__details
           case this.getElement().querySelector(`.event__details`) !== null:
-            render(
-                this.getElement().querySelector(`.event__details`),
-                getDestinationSectionTemplate(this._data.description, this._data.picsUrl),
-                Position.BEFORE_END
-            );
+            const template = getDestinationSectionTemplate(this._data.description, this._data.picsUrl);
+            if (template) {
+              render(
+                  this.getElement().querySelector(`.event__details`),
+                  template,
+                  Position.BEFORE_END
+              );
+            }
             break;
           // В противном случае отренедерим весь event__details
           default:
@@ -145,12 +161,11 @@ export class TripEventEditing extends AbstractComponent {
   _setEventHandlerOnEventTypeChange() {
     const typeRadios = this.getElement().querySelectorAll(`.event__type-input`);
     let typeTitle = this.getElement().querySelector(`.event__type-output`);
-
+    const oldOffersState = clone(this._data.offers);
     typeRadios.forEach((radio) => {
       radio.addEventListener(`change`, () => {
         this._data.type = radio.value;
         this._data.offers = getOffersByType(this._data.type);
-
         typeTitle.textContent = getTypeTitle(this._data.type);
         // Перерисуем ионкокнопку выбора типа точки,события
         render(this.getElement().querySelector(`.event__type-btn`), getEventTypeLabelTemplate(this._data.type));
@@ -166,11 +181,14 @@ export class TripEventEditing extends AbstractComponent {
           // Если в DOM есть section event__details,
           // отрендерим section для offers в начале этого event__details
           case this.getElement().querySelector(`.event__details`) !== null:
-            render(
-                this.getElement().querySelector(`.event__details`),
-                getOffersSectionTemplate(this._data.offers),
-                Position.AFTER_BEGIN
-            );
+            const template = getOffersSectionTemplate(this._data.offers);
+            if (template) {
+              render(
+                  this.getElement().querySelector(`.event__details`),
+                  template,
+                  Position.AFTER_BEGIN
+              );
+            }
             break;
           // В противном случае отренедерим весь event__details
           default:
@@ -184,6 +202,38 @@ export class TripEventEditing extends AbstractComponent {
                 Position.AFTER_END
             );
         }
+
+        // Если в DOM не было offers,
+        // то мы должны назначить им событие setEventHandlerOffersChange
+        if (!oldOffersState.length && this._data.offers.length) {
+          this._setEventHandlerOffersChange();
+        }
+      });
+    });
+  }
+
+  _setEventHandlerOnPriceChange() {
+    this.getElement().querySelector(`.event__input--price`).addEventListener(`change`, (evt) => {
+      const {value} = evt.currentTarget;
+      this._data.price = Math.max(Number(value), 0) || 0;
+    });
+  }
+
+  /**
+   * @private
+   */
+  _setEventHandlerOffersChange() {
+    const checkboxes = this.getElement().querySelectorAll(`.event__offer-checkbox`);
+    checkboxes.forEach((checkbox) => {
+      checkbox.addEventListener(`change`, (evt) => {
+        const {name, checked} = evt.currentTarget;
+        this._data.offers = this._data.offers.map((offer) => {
+          const {id} = offer;
+          if (id === name) {
+            return Object.assign({}, offer, {isApplied: checked});
+          }
+          return offer;
+        });
       });
     });
   }
@@ -238,7 +288,7 @@ export class TripEventEditing extends AbstractComponent {
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input event__input--price" id="event-price-1" type="text" name="event-price" value="${this._data.price}">
+          <input class="event__input event__input--price" id="event-price-1" type="number" min="0" name="event-price" value="${this._data.price}">
         </div>
     
         <button class="event__save-btn btn btn--blue" type="submit">Save</button>

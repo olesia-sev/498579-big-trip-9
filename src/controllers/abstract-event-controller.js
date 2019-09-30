@@ -1,6 +1,4 @@
-import {isEscEvent, Mode, toTimestamp} from "../utils";
-import {getTypeTitle, getOffersByType} from '../data';
-import {calculateTotalPrice} from '../main';
+import {isEscEvent} from "../utils";
 
 export class AbstractEventController {
   constructor(container, component, data, onDataChange) {
@@ -15,33 +13,8 @@ export class AbstractEventController {
     this._onDataChange = onDataChange;
   }
 
-  _save(form) {
-    // Получение данных с формы
-    const formData = new FormData(form);
-
-    const checkedTypeInput = this._component.getElement().querySelector(`.event__type-input:checked`);
-
-    const type = checkedTypeInput.value;
-
-    const entry = Object.assign({}, this._data, {
-      type,
-      title: getTypeTitle(type),
-      city: formData.get(`event-destination`),
-      dateFrom: toTimestamp(formData.get(`event-start-time`)),
-      dateTo: toTimestamp(formData.get(`event-end-time`)),
-      price: formData.get(`event-price`),
-      offers: getOffersByType(type).map((offer) => {
-        return Object.assign({}, offer, {
-          isApplied: formData.get(`${offer.id}`) === `on`
-        });
-      }),
-      isFavourite: Boolean(formData.get(`event-favorite`)),
-      mode: Mode.DEFAULT
-    });
-
-    this._onDataChange(entry, this._data);
-
-    document.querySelector(`.trip-info__cost-value`).textContent = calculateTotalPrice().toString();
+  _save(newData) {
+    this._onDataChange(newData, this._data);
   }
 
   static _onEscKeyDown(evt, action) {

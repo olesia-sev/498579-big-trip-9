@@ -104,6 +104,7 @@ export const Mode = {
 };
 
 export const finishNewEventCreationEvtName = `finish-new-event-creation`;
+export const calculateTotalPriceEvtName = `calculate-total-price`;
 
 // Быстрое глубокое клонирвание объекта, чтобы данные не менялись по ссылке
 export const clone = (obj) => {

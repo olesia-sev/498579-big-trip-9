@@ -4,11 +4,12 @@ import {AbstractEventController} from "./abstract-event-controller";
 
 export class NewEventController extends AbstractEventController {
   constructor(container, onDataChange) {
+    const date = new Date().getTime();
     const event = {
       type: ``,
       city: ``,
-      dateFrom: new Date(),
-      dateTo: new Date(),
+      dateFrom: date,
+      dateTo: date,
       price: 0,
       offers: [],
       isFavourite: false,
@@ -32,7 +33,7 @@ export class NewEventController extends AbstractEventController {
 
     element.addEventListener(`submit`, (evt) => {
       evt.preventDefault();
-      this._save(element);
+      this._save(this._component.getData());
       closeForm();
     });
 

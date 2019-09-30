@@ -1,5 +1,6 @@
+import moment from "moment";
 import {EventDaysContainer} from '../components/trip-days-container';
-import {Position, render} from '../utils';
+import {calculateTotalPriceEvtName, Position, render} from '../utils';
 import {TripDayCard} from '../components/trip-day-card';
 import {DayInfo} from '../components/day-info';
 import {EventsList} from '../components/events-list';
@@ -68,8 +69,7 @@ export class TripController {
     // Создадим объект с упорядоченными по датам массивами событий
     // { 2019-01-01: [ {event1}, {event2}, ... ], ... }
     const eventsByDays = events.reduce((acc, event) => {
-      const date = new Date(event.dateFrom);
-      const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+      const key = moment(event.dateFrom).format(`YYYY-MM-DD`);
       if (!Array.isArray(acc[key])) {
         acc[key] = [];
       }
@@ -107,7 +107,7 @@ export class TripController {
         this._onChangeView
     );
     eventController.init();
-    this._subscriptions.push(eventController.setDefaultView.bind(eventController));
+    this._subscriptions.push(eventController.closeEditForm.bind(eventController));
   }
 
   closeAllEvents() {
@@ -180,7 +180,7 @@ export class TripController {
         this._events = [newData, ...this._events];
         break;
     }
-
+    document.dispatchEvent(new CustomEvent(calculateTotalPriceEvtName, {detail: this._events}));
     this._render(this._events);
   }
 
@@ -210,5 +210,4 @@ export class TripController {
         break;
     }
   }
-
 }

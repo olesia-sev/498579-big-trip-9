@@ -192,6 +192,14 @@ const getMenuItems = () => {
   ];
 };
 
+export const cities = [
+  `Saint Petersburg`,
+  `Geneva`,
+  `Amsterdam`,
+  `London`,
+  `Oslo`
+];
+
 const getFiltersData = () => {
   return [
     {
