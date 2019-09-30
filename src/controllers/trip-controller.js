@@ -1,29 +1,48 @@
-import {EventsDaysList} from '../components/trip-days-container';
-import {Position, render} from '../utils';
-import {DayElement} from '../components/trip-day-card';
+import moment from "moment";
+import {EventDaysContainer} from '../components/trip-days-container';
+import {calculateTotalPriceEvtName, Position, render} from '../utils';
+import {TripDayCard} from '../components/trip-day-card';
 import {DayInfo} from '../components/day-info';
 import {EventsList} from '../components/events-list';
 import {Sort} from '../components/sort';
-import {PointController} from '../controllers/point-controller';
+import {EventController} from '../controllers/event-controller';
+import {NewEventController} from "./new-event-controller";
+import {Statistics} from "../components/statistics";
 
 export class TripController {
-  constructor(container, events) {
+  constructor(container, events, menu) {
     this._container = container; // trip-events
     this._events = events; // array of objects with events
-    this._eventsDaysList = new EventsDaysList(); // контейнер для дней - trip-days
+    this._eventsDaysList = new EventDaysContainer(); // контейнер для дней - trip-days
     this._sort = new Sort();
     this._sortType = `event`;
 
+    // Храним создаваемую карточку для определения состояния
+    this._creatingEvent = null;
+
+    this._menu = menu;
+    this._stats = new Statistics();
     this._subscriptions = [];
     this._onDataChange = this._onDataChange.bind(this);
     this._onChangeView = this._onChangeView.bind(this);
   }
 
+  startNewEventCreation() {
+    if (this._creatingEvent === null) {
+      this._creatingEvent = new NewEventController(this._container.querySelector(`.trip-days`), this._onDataChange);
+      this._creatingEvent.init();
+    }
+  }
+
+  finishNewEventCreation() {
+    this._creatingEvent = null;
+  }
+
   init() {
     // Отрендерим сортировку
-    render(this._container, this._sort.getElement(), Position.BEFOREEND);
+    render(this._container, this._sort.getElement(), Position.BEFORE_END);
     // Отрендерим контейнер для списка всех дней
-    render(this._container, this._eventsDaysList.getElement(), Position.BEFOREEND);
+    render(this._container, this._eventsDaysList.getElement(), Position.BEFORE_END);
 
     this._renderEventsByDays([...this._events]);
 
@@ -32,16 +51,16 @@ export class TripController {
   }
 
   _renderEvents(events) {
-    const dayElement = new DayElement().getElement(); // li trip-days__item  day
+    const dayElement = new TripDayCard().getElement(); // li trip-days__item  day
     const eventsList = new EventsList().getElement(); // trip-events__list
     const dayInfo = new DayInfo().getElement();
 
-    render(dayElement, dayInfo, Position.BEFOREEND);
+    render(dayElement, dayInfo, Position.BEFORE_END);
     dayElement.querySelector(`.day__info`).innerHTML = ``;
-    render(this._eventsDaysList.getElement(), dayElement, Position.BEFOREEND);
+    render(this._eventsDaysList.getElement(), dayElement, Position.BEFORE_END);
 
     events.forEach((tripEvent) => {
-      render(dayElement, eventsList, Position.BEFOREEND);
+      render(dayElement, eventsList, Position.BEFORE_END);
       this._renderEvent(eventsList, tripEvent);
     });
   }
@@ -50,8 +69,7 @@ export class TripController {
     // Создадим объект с упорядоченными по датам массивами событий
     // { 2019-01-01: [ {event1}, {event2}, ... ], ... }
     const eventsByDays = events.reduce((acc, event) => {
-      const date = new Date(event.dateFrom);
-      const key = `${date.getFullYear()}-${date.getMonth()}-${date.getDate()}`;
+      const key = moment(event.dateFrom).format(`YYYY-MM-DD`);
       if (!Array.isArray(acc[key])) {
         acc[key] = [];
       }
@@ -67,21 +85,33 @@ export class TripController {
     // Затем, переберем события в текущем дне:
     // на каждой итерации будем создавать карточку события и рендерить её внутри eventsList
     Object.entries(eventsByDays).forEach(([dateAsKey, tripEvents]) => {
-      const dayElement = new DayElement().getElement(); // li trip-days__item  day
+      const dayElement = new TripDayCard().getElement(); // li trip-days__item  day
       const dayInfo = new DayInfo(dateAsKey).getElement();
       const eventsList = new EventsList().getElement(); // trip-events__list
-      render(this._eventsDaysList.getElement(), dayElement, Position.BEFOREEND);
+
+      render(this._eventsDaysList.getElement(), dayElement, Position.BEFORE_END);
+
       tripEvents.forEach((tripEvent) => {
-        render(dayElement, dayInfo, Position.BEFOREEND);
-        render(dayElement, eventsList, Position.BEFOREEND);
+        render(dayElement, dayInfo, Position.BEFORE_END);
+        render(dayElement, eventsList, Position.BEFORE_END);
         this._renderEvent(eventsList, tripEvent);
       });
     });
   }
 
   _renderEvent(container, event) {
-    const pointController = new PointController(container, event, this._onDataChange, this._onChangeView);
-    this._subscriptions.push(pointController.setDefaultView.bind(pointController));
+    const eventController = new EventController(
+        container,
+        event,
+        this._onDataChange,
+        this._onChangeView
+    );
+    eventController.init();
+    this._subscriptions.push(eventController.closeEditForm.bind(eventController));
+  }
+
+  closeAllEvents() {
+    this._onChangeView();
   }
 
   _getSortedEvents() {
@@ -131,13 +161,53 @@ export class TripController {
   }
 
   _onDataChange(newData, oldData) {
-    this._events[this._events.findIndex((i) => i === oldData)] = newData;
+    const index = this._events.findIndex((event) => {
+      return event === oldData;
+    });
 
+    switch (true) {
+      // Если newData равно null, то это значит, что элемент удален.
+      // Создаем новый массив не включая в него удаленный элемент.
+      case !newData && index > -1:
+        this._events = [...this._events.slice(0, index), ...this._events.slice(index + 1)];
+        break;
+
+      case newData && index > -1:
+        this._events[index] = newData;
+        break;
+
+      case newData && index === -1:
+        this._events = [newData, ...this._events];
+        break;
+    }
+    document.dispatchEvent(new CustomEvent(calculateTotalPriceEvtName, {detail: this._events}));
     this._render(this._events);
   }
 
   _onChangeView() {
-    this._subscriptions.forEach((it) => it());
+    this._subscriptions.forEach((subscription) => subscription());
   }
 
+  toggleStatistics(evt) {
+    evt.preventDefault();
+
+    if (evt.target.tagName !== `A`) {
+      return;
+    }
+
+    this._menu.setActiveMenuItem(evt.target.textContent);
+    this._menu.render();
+
+    switch (evt.target.textContent) {
+      case `Table`:
+        this._stats.getElement().classList.add(`visually-hidden`);
+        this._eventsDaysList.getElement().classList.remove(`visually-hidden`);
+        break;
+
+      case `Stats`:
+        this._eventsDaysList.getElement().classList.add(`visually-hidden`);
+        this._stats.getElement().classList.remove(`visually-hidden`);
+        break;
+    }
+  }
 }

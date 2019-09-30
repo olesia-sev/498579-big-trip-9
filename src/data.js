@@ -67,8 +67,8 @@ export const offers = {
   ]
 };
 
-const typesIn = new Set([`check-in`, `restaurant`, `sightseeing`]);
-const typesTo = new Set([`bus`, `drive`, `flight`, `ship`, `taxi`, `train`, `transport`, `trip`]);
+export const typesIn = new Set([`check-in`, `restaurant`, `sightseeing`]);
+export const typesTo = new Set([`bus`, `drive`, `flight`, `ship`, `taxi`, `train`, `transport`]);
 const types = [...typesIn, ...typesTo];
 
 export const getOffersByType = (type) => {
@@ -85,6 +85,10 @@ export const getOffersByType = (type) => {
   }
 };
 
+/**
+ * @param {string} type
+ * @return {string}
+ */
 export const getTypeTitle = (type) => {
   switch (true) {
     case typesIn.has(type): {
@@ -127,19 +131,11 @@ const getRandomPictures = () => {
   return pictures;
 };
 
-export const cities = [
-  `Saint Petersburg`,
-  `Geneva`,
-  `Amsterdam`,
-  `London`,
-  `Oslo`
-];
-
 export const destinations = [
   {
     city: `Saint Petersburg`,
-    description: getRandomDescription(),
-    picsUrl: getRandomPictures()
+    description: ``,
+    picsUrl: []
   },
   {
     city: `Geneva`,
@@ -163,28 +159,27 @@ export const destinations = [
   }
 ];
 
+export const getCityInfo = (city) => {
+  return destinations.find((destination) => destination.city === city);
+};
+
 const getTripEvent = () => {
   const type = getRandomType();
   const dateFrom = getRandomTimestamp() + getRandomInRange(1000, 20000);
   const dateTo = dateFrom + getRandomInRange(100000, 200000000);
 
-  const getRandomDestinationIndex = getRandomArrayIndex(destinations);
-
   return {
     type,
-    title: getTypeTitle(type),
-    city: destinations[getRandomDestinationIndex].city,
+    city: destinations[getRandomArrayIndex(destinations)].city,
     dateFrom,
     dateTo,
-    sightsImagesSrc: destinations[getRandomDestinationIndex].picsUrl,
-    description: destinations[getRandomDestinationIndex].description,
     price: getRandomInRange(10, 2500),
     offers: getRandomAppliedOffersByType(type),
     isFavourite: getRandomBoolean()
   };
 };
 
-const getMenuData = () => {
+const getMenuItems = () => {
   return [
     {
       name: `Table`,
@@ -196,6 +191,14 @@ const getMenuData = () => {
     }
   ];
 };
+
+export const cities = [
+  `Saint Petersburg`,
+  `Geneva`,
+  `Amsterdam`,
+  `London`,
+  `Oslo`
+];
 
 const getFiltersData = () => {
   return [
@@ -214,4 +217,4 @@ const getFiltersData = () => {
   ];
 };
 
-export {getTripEvent, getMenuData, getFiltersData};
+export {getTripEvent, getMenuItems, getFiltersData};

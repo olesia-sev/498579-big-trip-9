@@ -1,7 +1,7 @@
 import {AbstractComponent} from './absctract-component';
 
-export class EventsDaysList extends AbstractComponent {
+export class EventDaysContainer extends AbstractComponent {
   getTemplate() {
-    return `<ul class="trip-days"> </ul>`;
+    return `<ul class="trip-days"></ul>`;
   }
 }
