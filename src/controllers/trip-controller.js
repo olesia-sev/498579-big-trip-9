@@ -21,7 +21,8 @@ export class TripController {
     this._creatingEvent = null;
 
     this._menu = menu;
-    this._stats = new Statistics();
+    this._statistics = new Statistics([...this._events]);
+
     this._subscriptions = [];
     this._onDataChange = this._onDataChange.bind(this);
     this._onChangeView = this._onChangeView.bind(this);
@@ -48,6 +49,8 @@ export class TripController {
 
     this._sort.getElement()
       .addEventListener(`click`, (evt) => this._onSortLinkClick(evt));
+
+    this._statistics.init();
   }
 
   _renderEvents(events) {
@@ -200,13 +203,13 @@ export class TripController {
 
     switch (evt.target.textContent) {
       case `Table`:
-        this._stats.getElement().classList.add(`visually-hidden`);
+        this._statistics.getElement().classList.add(`visually-hidden`);
         this._eventsDaysList.getElement().classList.remove(`visually-hidden`);
         break;
 
       case `Stats`:
         this._eventsDaysList.getElement().classList.add(`visually-hidden`);
-        this._stats.getElement().classList.remove(`visually-hidden`);
+        this._statistics.getElement().classList.remove(`visually-hidden`);
         break;
     }
   }

@@ -110,3 +110,25 @@ export const calculateTotalPriceEvtName = `calculate-total-price`;
 export const clone = (obj) => {
   return JSON.parse(JSON.stringify(obj));
 };
+
+
+export const ChartType = {
+  MONEY: `money`,
+  TRANSPORT: `transport`,
+  TIME: `time`
+};
+
+export const Emoji = {
+  FLAG: `🚩`,
+  BUS: `🚍`,
+  CHECK_IN: `🏨`,
+  DRIVE: `🚘`,
+  FLIGHT: `✈️`,
+  RESTAURANT: `🍴`,
+  SHIP: `🚢`,
+  SIGHTSEEING: `👁️`,
+  TAXI: `🚖`,
+  TRAIN: `🚂`,
+  TRANSPORT: `🚆`,
+  TRIP: `🗻`
+};

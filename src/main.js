@@ -33,11 +33,6 @@ const itineraryContainer = document.querySelector(`.trip-info`);
 
 render(itineraryContainer, getItineraryTemplate(eventsArray), Position.AFTER_BEGIN);
 
-// Рендерит контейнер со статистикой
-const pageMainContainer = document.querySelector(`.page-body__page-main`).querySelector(`.page-body__container`);
-const statisticsBlock = new Statistics();
-render(pageMainContainer, statisticsBlock.getTemplate(), Position.BEFORE_END);
-
 const addNewEventButton = document.querySelector(`.trip-main__event-add-btn`);
 addNewEventButton.addEventListener(`click`, (evt) => {
   evt.preventDefault();
