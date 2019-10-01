@@ -1,4 +1,4 @@
-import {getRandomBoolean, getRandomArrayIndex, getRandomInRange, capitalizeFirstLetter, getRandomTimestamp} from './utils.js';
+import {getRandomBoolean, getRandomArrayIndex, getRandomInRange, capitalizeFirstLetter, getRandomTimestamp} from './utils';
 
 const sentences = Array.from(
     `Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget. Fusce tristique felis at fermentum pharetra. Aliquam id orci ut lectus varius viverra. Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum. Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui. Sed sed nisi sed augue convallis suscipit in sed felis. Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus. In rutrum ac purus sit amet tempus.`
@@ -7,8 +7,6 @@ const sentences = Array.from(
         return sentence.replace(/.\s*$/, `.`);
       })
 );
-
-export const monthShortNames = [`JAN`, `FEB`, `MAR`, `APR`, `MAY`, `JUN`, `JUL`, `AUG`, `SEP`, `OCT`, `NOV`, `DEC`];
 
 export const offers = {
   in: [
@@ -133,44 +131,48 @@ const getRandomPictures = () => {
 
 export const destinations = [
   {
-    city: `Saint Petersburg`,
+    name: `Saint Petersburg`,
     description: ``,
     picsUrl: []
   },
   {
-    city: `Geneva`,
+    name: `Geneva`,
     description: getRandomDescription(),
     picsUrl: getRandomPictures()
   },
   {
-    city: `Amsterdam`,
+    name: `Amsterdam`,
     description: getRandomDescription(),
     picsUrl: getRandomPictures()
   },
   {
-    city: `London`,
+    name: `London`,
     description: getRandomDescription(),
     picsUrl: getRandomPictures()
   },
   {
-    city: `Oslo`,
+    name: `Oslo`,
     description: getRandomDescription(),
     picsUrl: getRandomPictures()
   }
 ];
 
-export const getCityInfo = (city) => {
-  return destinations.find((destination) => destination.city === city);
+export const getDestinationInfo = (destinationName) => {
+  return destinations.find(({name}) => name === destinationName);
 };
 
-const getTripEvent = () => {
+export const getDestinationsNames = () => {
+  return destinations.map(({name}) => name);
+};
+
+export const getTripEvent = () => {
   const type = getRandomType();
   const dateFrom = getRandomTimestamp() + getRandomInRange(1000, 20000);
   const dateTo = dateFrom + getRandomInRange(100000, 200000000);
 
   return {
     type,
-    city: destinations[getRandomArrayIndex(destinations)].city,
+    destinationName: destinations[getRandomArrayIndex(destinations)].name,
     dateFrom,
     dateTo,
     price: getRandomInRange(10, 2500),
@@ -179,7 +181,7 @@ const getTripEvent = () => {
   };
 };
 
-const getMenuItems = () => {
+export const getMenuItems = () => {
   return [
     {
       name: `Table`,
@@ -192,15 +194,7 @@ const getMenuItems = () => {
   ];
 };
 
-export const cities = [
-  `Saint Petersburg`,
-  `Geneva`,
-  `Amsterdam`,
-  `London`,
-  `Oslo`
-];
-
-const getFiltersData = () => {
+export const getFiltersData = () => {
   return [
     {
       name: `Everything`,
@@ -217,4 +211,10 @@ const getFiltersData = () => {
   ];
 };
 
-export {getTripEvent, getMenuItems, getFiltersData};
+const CARDS_AMOUNT = 3;
+export const getInitialEventsArray = () => {
+  return new Array(CARDS_AMOUNT)
+    .fill(``)
+    .map(getTripEvent)
+    .sort((a, b) => a.dateFrom - b.dateFrom);
+};

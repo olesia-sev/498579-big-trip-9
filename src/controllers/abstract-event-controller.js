@@ -1,6 +1,6 @@
 import {isEscEvent} from "../utils";
 
-export class AbstractEventController {
+export default class AbstractEventController {
   constructor(container, component, data, onDataChange) {
     if (new.target === AbstractEventController) {
       throw new Error(`Can't instantiate AbstractComponent, only concrete one.`);

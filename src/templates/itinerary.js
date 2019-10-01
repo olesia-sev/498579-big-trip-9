@@ -1,18 +1,18 @@
 import moment from "moment";
+import {getDestinationsNames} from "../data";
 
 export const getItineraryTemplate = (eventsArray) => {
-  let citiesList = eventsArray.map(({city}) => {
-    return city;
-  });
+  const data = [...new Set(getDestinationsNames())];
 
-  citiesList = [...new Set(citiesList)];
-
-  if (citiesList.length > 2) {
-    citiesList = [
-      citiesList[0],
+  let destinations;
+  if (data.length > 2) {
+    destinations = [
+      data[0],
       `...`,
-      citiesList[citiesList.length - 1]
+      data[data.length - 1]
     ];
+  } else {
+    destinations = [];
   }
 
   let dateStartTimestamp = eventsArray[0].dateFrom;
@@ -20,7 +20,7 @@ export const getItineraryTemplate = (eventsArray) => {
 
   return `<div class="trip-info__main">
     <h1 class="trip-info__title">
-      ${citiesList.join(` &mdash; `)}
+      ${destinations.join(` &mdash; `)}
     </h1>
     <p class="trip-info__dates">
         ${moment(dateStartTimestamp).format(`DD MMM`)} &mdash; ${moment(dateEndTimestamp).format(`DD MMM`)}

@@ -1,13 +1,13 @@
-import {AbstractComponent} from "./absctract-component";
+import AbstractComponent from "./absctract-component";
 import {clone, Position, render} from '../utils';
-import {chartMoneyConfig} from '../configs/chart-money-config';
-import {chartTransportConfig} from '../configs/chart-transport-config';
-import {chartTimeSpendConfig} from '../configs/chart-time-config';
+import chartMoneyConfig from '../configs/chart-money-config';
+import chartTransportConfig from '../configs/chart-transport-config';
+import chartTimeSpendConfig from '../configs/chart-time-config';
 import {typesTo} from '../data';
 import Chart from 'chart.js';
 import moment from "moment";
 
-export class Statistics extends AbstractComponent {
+export default class Statistics extends AbstractComponent {
   /**
    * @param {object[]} events
    */
@@ -73,14 +73,14 @@ export class Statistics extends AbstractComponent {
   }
 
   _initTimeSpendChart() {
-    const timeSpendMap = this._data.reduce((acc, {city, dateFrom, dateTo}) => {
+    const timeSpendMap = this._data.reduce((acc, {destinationName, dateFrom, dateTo}) => {
       let hours = 0;
-      if (acc.has(city)) {
-        hours = acc.get(city);
+      if (acc.has(destinationName)) {
+        hours = acc.get(destinationName);
       }
       const duration = moment.duration(dateTo - dateFrom);
 
-      return acc.set(city, hours + Math.floor(duration.asHours()));
+      return acc.set(destinationName, hours + Math.floor(duration.asHours()));
     }, new Map());
 
     const config = clone(chartTimeSpendConfig);

@@ -1,4 +1,4 @@
-export const getFiltersTemplate = (data) => {
+export default (data) => {
   return `<form class="trip-filters" action="#" method="get">
     ${data.map((item) =>
     `<div class="trip-filters__filter">

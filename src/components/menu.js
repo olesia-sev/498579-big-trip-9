@@ -1,7 +1,7 @@
-import {AbstractComponent} from "./absctract-component";
-import {Position, render} from "../utils";
+import AbstractComponent from "./absctract-component";
+import {menuClickEvtName, Position, render} from "../utils";
 
-export class Menu extends AbstractComponent {
+export default class Menu extends AbstractComponent {
   constructor(menuItems) {
     super();
     this._menuItems = menuItems;

@@ -1,6 +1,6 @@
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-export const chartTimeSpendConfig = {
+export default {
   plugins: [ChartDataLabels],
   type: `horizontalBar`,
 
@@ -24,5 +24,4 @@ export const chartTimeSpendConfig = {
     fullWidth: true,
     padding: 20
   },
-
 };

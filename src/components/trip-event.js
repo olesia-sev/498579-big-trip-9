@@ -1,14 +1,14 @@
-import {AbstractComponent} from './absctract-component';
+import AbstractComponent from './absctract-component';
 import moment from "moment";
 import {MOMENT_TIME_FORMAT} from "../utils";
 import {getTypeTitle} from "../data";
 
-export class TripEvent extends AbstractComponent {
-  constructor({type, city, dateFrom, dateTo, price, offers}) {
+export default class TripEvent extends AbstractComponent {
+  constructor({type, destinationName, dateFrom, dateTo, price, offers}) {
     super();
     this._type = type;
     this._title = getTypeTitle(this._type);
-    this._city = city;
+    this._destinationName = destinationName;
     this._dateFrom = dateFrom;
     this._dateTo = dateTo;
     this._offers = TripEvent._getOffersForTemplate(offers, 3);
@@ -61,7 +61,7 @@ export class TripEvent extends AbstractComponent {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${this._type}.png" alt="Event type icon">
         </div>
-        <h3 class="event__title">${this._title} ${this._city}</h3>
+        <h3 class="event__title">${this._title} ${this._destinationName}</h3>
       
         <div class="event__schedule">
           <p class="event__time">

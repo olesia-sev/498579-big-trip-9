@@ -1,9 +1,9 @@
-import {TripEvent} from "../components/trip-event";
-import {TripEventEditing} from "../components/trip-event-editing";
+import TripEvent from "../components/trip-event";
+import TripEventEditing from "../components/trip-event-editing";
 import {Position, render} from "../utils";
-import {AbstractEventController} from "./abstract-event-controller";
+import AbstractEventController from "./abstract-event-controller";
 
-export class EventController extends AbstractEventController {
+export default class EventController extends AbstractEventController {
   constructor(container, event, onDataChange, onChangeView) {
     super(container, null, event, onDataChange);
     this._onChangeView = onChangeView;

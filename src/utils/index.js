@@ -86,6 +86,7 @@ export const MOMENT_DATE_TIME_FORMAT = `DD.MM.YYYY HH:mm`;
 export const MOMENT_TIME_FORMAT = `HH:mm`;
 
 const dateParser = /(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2})/;
+// noinspection JSUnusedGlobalSymbols
 export const toTimestamp = (dateString) => {
   const match = dateString.match(dateParser);
   const date = new Date(
@@ -105,12 +106,12 @@ export const Mode = {
 
 export const finishNewEventCreationEvtName = `finish-new-event-creation`;
 export const calculateTotalPriceEvtName = `calculate-total-price`;
+export const menuClickEvtName = `menu-click`;
 
 // Быстрое глубокое клонирвание объекта, чтобы данные не менялись по ссылке
 export const clone = (obj) => {
   return JSON.parse(JSON.stringify(obj));
 };
-
 
 export const ChartType = {
   MONEY: `money`,

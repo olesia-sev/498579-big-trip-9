@@ -1,8 +1,8 @@
 import 'flatpickr/dist/themes/light.css';
 import flatpickr from 'flatpickr';
 import moment from 'moment';
-import {cities, destinations, getCityInfo, getOffersByType, getTypeTitle} from '../data';
-import {AbstractComponent} from './absctract-component';
+import {destinations, getDestinationInfo, getDestinationsNames, getOffersByType, getTypeTitle} from '../data';
+import AbstractComponent from './absctract-component';
 import {FLATPICKER_DATE_TIME_FORMAT, MOMENT_DATE_TIME_FORMAT, Mode, render, Position, clone} from '../utils';
 import {getEventTypeLabelTemplate, getEventTypesTemplate} from "../templates/event-type";
 import {
@@ -11,10 +11,10 @@ import {
   getOffersSectionTemplate
 } from "../templates/event-details-section";
 
-export class TripEventEditing extends AbstractComponent {
+export default class TripEventEditing extends AbstractComponent {
   /**
    * @param {string} type
-   * @param {string} city
+   * @param {string} destinationName
    * @param {number} dateFrom
    * @param {number} dateTo
    * @param {string[]} offers
@@ -24,7 +24,7 @@ export class TripEventEditing extends AbstractComponent {
    */
   constructor({
     type,
-    city,
+    destinationName,
     dateFrom,
     dateTo,
     offers,
@@ -36,7 +36,7 @@ export class TripEventEditing extends AbstractComponent {
 
     this._data = {
       type,
-      city,
+      destinationName,
       dateFrom,
       dateTo,
       offers,
@@ -44,7 +44,7 @@ export class TripEventEditing extends AbstractComponent {
       isFavourite
     };
 
-    const {description, picsUrl} = getCityInfo(city) || {};
+    const {description, picsUrl} = getDestinationInfo(destinationName) || {};
 
     this._data.description = description || ``;
     this._data.picsUrl = picsUrl || [];
@@ -52,7 +52,7 @@ export class TripEventEditing extends AbstractComponent {
     this._mode = mode;
 
     this._flatpickrInit();
-    this._setEventHandlerOnCityChange();
+    this._setEventHandlerOnDestinationChange();
     this._setEventHandlerOnEventTypeChange();
     this._setEventHandlerOffersChange();
     this._setEventHandlerOnPriceChange();
@@ -63,7 +63,7 @@ export class TripEventEditing extends AbstractComponent {
   }
 
   /**
-   * @return {{offers: *, city: *, price: *, dateTo: *, type: *, dateFrom: *, isFavourite: *}|*}
+   * @return {{offers: *, destinationName: *, price: *, dateTo: *, type: *, dateFrom: *, isFavourite: *}|*}
    */
   getData() {
     return this._data;
@@ -107,16 +107,16 @@ export class TripEventEditing extends AbstractComponent {
   /**
    * @private
    */
-  _setEventHandlerOnCityChange() {
+  _setEventHandlerOnDestinationChange() {
     this.getElement()
       .querySelector(`.event__input--destination`)
       .addEventListener(`change`, (evt) => {
         const {value} = evt.currentTarget;
-        if (!cities.includes(value)) {
+        if (!getDestinationsNames().includes(value)) {
           return;
         }
-        let {description, picsUrl} = getCityInfo(value) || {};
-        this._data.city = value;
+        let {description, picsUrl} = getDestinationInfo(value) || {};
+        this._data.destinationName = value;
         this._data.description = description || ``;
         this._data.picsUrl = picsUrl || [];
 
@@ -253,7 +253,7 @@ export class TripEventEditing extends AbstractComponent {
    * @return {string}
    */
   getTemplate() {
-    const template = `<form class="event event--edit ${!this._data.city ? `trip-events__item` : ``}" action="#" method="post">
+    const template = `<form class="event event--edit ${!this._data.destinationName ? `trip-events__item` : ``}" action="#" method="post">
       <header class="event__header">
         <div class="event__type-wrapper">
           ${getEventTypeLabelTemplate(this._data.type)}
@@ -265,9 +265,9 @@ export class TripEventEditing extends AbstractComponent {
           <label class="event__label event__type-output" for="event-destination-1">
             ${getTypeTitle(this._data.type)}
           </label>
-          <input class="event__input event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._data.city}" list="destination-list-1">
+          <input class="event__input event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${this._data.destinationName}" list="destination-list-1">
           <datalist id="destination-list-1">
-            ${destinations.map(({city}) => `<option value="${city}">${city}</option>`).join(``)}
+            ${destinations.map(({name}) => `<option value="${name}">${name}</option>`).join(``)}
           </datalist>
         </div>
     

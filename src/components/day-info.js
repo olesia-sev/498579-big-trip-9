@@ -1,7 +1,7 @@
-import {AbstractComponent} from './absctract-component';
+import AbstractComponent from './absctract-component';
 import moment from "moment";
 
-export class DayInfo extends AbstractComponent {
+export default class DayInfo extends AbstractComponent {
   constructor(dateFrom) {
     super();
     this._dateFrom = dateFrom;

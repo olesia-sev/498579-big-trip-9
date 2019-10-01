@@ -1,15 +1,15 @@
 import moment from "moment";
-import {EventDaysContainer} from '../components/trip-days-container';
-import {calculateTotalPriceEvtName, Position, render} from '../utils';
-import {TripDayCard} from '../components/trip-day-card';
-import {DayInfo} from '../components/day-info';
-import {EventsList} from '../components/events-list';
-import {Sort} from '../components/sort';
-import {EventController} from '../controllers/event-controller';
-import {NewEventController} from "./new-event-controller";
-import {Statistics} from "../components/statistics";
+import EventDaysContainer from '../components/trip-days-container';
+import {calculateTotalPriceEvtName, menuClickEvtName, Position, render} from '../utils';
+import TripDayCard from '../components/trip-day-card';
+import DayInfo from '../components/day-info';
+import EventsList from '../components/events-list';
+import Sort from '../components/sort';
+import EventController from '../controllers/event-controller';
+import NewEventController from "./new-event-controller";
+import Statistics from "../components/statistics";
 
-export class TripController {
+export default class TripController {
   constructor(container, events, menu) {
     this._container = container; // trip-events
     this._events = events; // array of objects with events

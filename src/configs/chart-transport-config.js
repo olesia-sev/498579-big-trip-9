@@ -1,6 +1,6 @@
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
-export const chartTransportConfig = {
+export default {
   plugins: [ChartDataLabels],
   type: `horizontalBar`,
 
@@ -24,5 +24,4 @@ export const chartTransportConfig = {
     fullWidth: true,
     padding: 20
   },
-
 };
