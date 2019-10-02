@@ -1,4 +1,4 @@
-import {DEFAULT_FILTER, FUTURE_FILTER, PAST_FILTER, getMenuItems} from '../data';
+import {getMenuItems} from '../data';
 import {
   calculateTotalPriceEvtName,
   finishNewEventCreationEvtName,
@@ -8,7 +8,6 @@ import {
 } from "../utils";
 import {getItineraryTemplate} from '../templates/itinerary';
 import Menu from '../components/menu';
-import Filters from "../components/filters";
 import TripController from './trip-controller';
 import {getInitialEventsArray} from "../data";
 
