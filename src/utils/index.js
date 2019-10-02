@@ -6,6 +6,11 @@ export const getRandomArrayIndex = (arr) => {
   return Math.floor(Math.random() * arr.length);
 };
 
+/**
+ * @param {number} min
+ * @param {number} max
+ * @return {number}
+ */
 export const getRandomInRange = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 };
@@ -14,6 +19,9 @@ export const capitalizeFirstLetter = (str) => {
   return str.charAt(0).toUpperCase() + str.slice(1);
 };
 
+/**
+ * @return {number}
+ */
 export const getRandomTimestamp = () => {
   // 86400000 = 24 * 60 * 60 * 1000
   return Date.now() + 1 + Math.floor(Math.random() * 7) * 86400000;
@@ -81,23 +89,9 @@ export const isEscEvent = (evt, action) => {
   }
 };
 
-export const FLATPICKER_DATE_TIME_FORMAT = `d.m.Y H:i`;
+export const FLATPICKR_DATE_TIME_FORMAT = `d.m.Y H:i`;
 export const MOMENT_DATE_TIME_FORMAT = `DD.MM.YYYY HH:mm`;
 export const MOMENT_TIME_FORMAT = `HH:mm`;
-
-const dateParser = /(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2})/;
-// noinspection JSUnusedGlobalSymbols
-export const toTimestamp = (dateString) => {
-  const match = dateString.match(dateParser);
-  const date = new Date(
-      match[3], // year
-      match[2] - 1, // monthIndex
-      match[1], // day
-      match[4], // hours
-      match[5] // minutes
-  );
-  return date.getTime();
-};
 
 export const Mode = {
   ADDING: `adding`,

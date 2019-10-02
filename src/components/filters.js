@@ -12,7 +12,7 @@ export default class Filters extends AbstractComponent {
     this._onFilterCallback = callback;
   }
 
-  getAllowedFilters() {
+  getAllowedFilterTypes() {
     return this._items;
   }
 

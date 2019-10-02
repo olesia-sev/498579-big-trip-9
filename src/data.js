@@ -8,8 +8,8 @@ const sentences = Array.from(
       })
 );
 
-export const offers = {
-  in: [
+const Offers = {
+  IN: [
     {
       name: `Add luggage`,
       price: 30,
@@ -36,7 +36,7 @@ export const offers = {
       id: `event-offer-train`
     }
   ],
-  to: [
+  TO: [
     {
       name: `Travel by train123`,
       price: 30,
@@ -72,10 +72,10 @@ const types = [...typesIn, ...typesTo];
 export const getOffersByType = (type) => {
   switch (true) {
     case typesIn.has(type): {
-      return offers.in;
+      return Offers.IN;
     }
     case typesTo.has(type): {
-      return offers.to;
+      return Offers.TO;
     }
     default: {
       return [];
@@ -181,22 +181,28 @@ export const getTripEvent = () => {
   };
 };
 
-export const getMenuItems = () => {
-  return [
-    {
-      name: `Table`,
-      isActive: true
-    },
-    {
-      name: `Stats`,
-      isActive: false
-    }
-  ];
+export const MENU_ITEMS = [
+  {
+    name: `Table`,
+    isActive: true
+  },
+  {
+    name: `Stats`,
+    isActive: false
+  }
+];
+
+export const SortTypes = {
+  DEFAULT: `event`,
+  TIME: `time`,
+  PRICE: `price`
 };
 
-export const DEFAULT_FILTER = `everything`;
-export const FUTURE_FILTER = `future`;
-export const PAST_FILTER = `past`;
+export const FilterTypes = {
+  DEFAULT: `everything`,
+  FUTURE: `future`,
+  PAST: `past`
+};
 
 const CARDS_AMOUNT = 3;
 export const getInitialEventsArray = () => {

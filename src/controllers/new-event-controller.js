@@ -4,7 +4,7 @@ import AbstractEventController from "./abstract-event-controller";
 
 export default class NewEventController extends AbstractEventController {
   constructor(container, onDataChange) {
-    const date = new Date().getTime();
+    const date = Date.now();
     const event = {
       type: ``,
       destinationName: ``,

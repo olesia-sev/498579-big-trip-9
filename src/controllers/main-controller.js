@@ -1,4 +1,4 @@
-import {getMenuItems} from '../data';
+import {MENU_ITEMS} from '../data';
 import {
   calculateTotalPriceEvtName,
   finishNewEventCreationEvtName,
@@ -34,7 +34,7 @@ export default class MainController {
     const tripController = new TripController(document.querySelector(`.trip-events`), this._data);
     tripController.init();
 
-    const menu = new Menu(getMenuItems());
+    const menu = new Menu(MENU_ITEMS);
     menu.setOnclickCallback((evt) => tripController.toggleStatistics(evt));
     menu.init();
 

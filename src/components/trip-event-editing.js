@@ -3,7 +3,7 @@ import flatpickr from 'flatpickr';
 import moment from 'moment';
 import {destinations, getDestinationInfo, getDestinationsNames, getOffersByType, getTypeTitle} from '../data';
 import AbstractComponent from './absctract-component';
-import {FLATPICKER_DATE_TIME_FORMAT, MOMENT_DATE_TIME_FORMAT, Mode, render, Position, clone} from '../utils';
+import {FLATPICKR_DATE_TIME_FORMAT, MOMENT_DATE_TIME_FORMAT, Mode, render, Position, clone} from '../utils';
 import {getEventTypeLabelTemplate, getEventTypesTemplate} from "../templates/event-type";
 import {
   getDestinationSectionTemplate,
@@ -74,7 +74,7 @@ export default class TripEventEditing extends AbstractComponent {
    */
   _flatpickrInit() {
     const options = {
-      dateFormat: FLATPICKER_DATE_TIME_FORMAT,
+      dateFormat: FLATPICKR_DATE_TIME_FORMAT,
       enableTime: true,
       // eslint-disable-next-line camelcase
       time_24hr: true
