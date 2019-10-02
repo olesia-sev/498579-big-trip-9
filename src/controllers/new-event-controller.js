@@ -1,13 +1,13 @@
-import {TripEventEditing} from "../components/trip-event-editing";
+import TripEventEditing from "../components/trip-event-editing";
 import {Position, Mode, render, finishNewEventCreationEvtName} from "../utils";
-import {AbstractEventController} from "./abstract-event-controller";
+import AbstractEventController from "./abstract-event-controller";
 
-export class NewEventController extends AbstractEventController {
+export default class NewEventController extends AbstractEventController {
   constructor(container, onDataChange) {
     const date = new Date().getTime();
     const event = {
       type: ``,
-      city: ``,
+      destinationName: ``,
       dateFrom: date,
       dateTo: date,
       price: 0,

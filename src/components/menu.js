@@ -1,14 +1,22 @@
-import {AbstractComponent} from "./absctract-component";
-import {Position, render} from "../utils";
+import AbstractComponent from "./absctract-component";
+import {menuClickEvtName, Position, render} from "../utils";
 
-export class Menu extends AbstractComponent {
+export default class Menu extends AbstractComponent {
   constructor(menuItems) {
     super();
     this._menuItems = menuItems;
     this._onClickCallback = () => null;
   }
 
-  setActiveMenuItem(name) {
+  init() {
+    document.addEventListener(menuClickEvtName, ({detail}) => {
+      this._setActiveMenuItem(detail);
+      this._render();
+    });
+    this._render();
+  }
+
+  _setActiveMenuItem(name) {
     this._menuItems = this._menuItems.map((item) => {
       return Object.assign({}, item, {isActive: item.name === name});
     });
@@ -18,7 +26,7 @@ export class Menu extends AbstractComponent {
     this._onClickCallback = callback;
   }
 
-  render() {
+  _render() {
     const tabsContainer = document.querySelector(`.trip-tabs`);
     if (tabsContainer) {
       tabsContainer.parentNode.removeChild(tabsContainer);

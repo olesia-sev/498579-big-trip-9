@@ -1,6 +1,6 @@
-import {AbstractComponent} from './absctract-component';
+import AbstractComponent from './absctract-component';
 
-export class TripDayCard extends AbstractComponent {
+export default class TripDayCard extends AbstractComponent {
   getTemplate() {
     return `<li class="trip-days__item  day"></li>`;
   }

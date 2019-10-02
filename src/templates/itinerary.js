@@ -1,29 +1,42 @@
 import moment from "moment";
 
-export const getItineraryTemplate = (eventsArray) => {
-  let citiesList = eventsArray.map(({city}) => {
-    return city;
-  });
+/**
+ * @param {object[]} events
+ * @return {string}
+ */
+export const getItineraryTemplate = (events) => {
+  const destinationsNames = events.map(({destinationName}) => destinationName);
 
-  citiesList = [...new Set(citiesList)];
-
-  if (citiesList.length > 2) {
-    citiesList = [
-      citiesList[0],
+  let destinations;
+  if (destinationsNames.length > 2) {
+    destinations = [
+      destinationsNames[0],
       `...`,
-      citiesList[citiesList.length - 1]
+      destinationsNames[destinationsNames.length - 1]
     ];
+  } else {
+    destinations = destinationsNames;
   }
 
-  let dateStartTimestamp = eventsArray[0].dateFrom;
-  let dateEndTimestamp = eventsArray[eventsArray.length - 1].dateTo;
+  const format = `DD MMM`;
+  const dates = [];
+  if (events[0] && events[0].dateFrom) {
+    dates.push(moment(events[0].dateFrom).format(format));
+    if (events[events.length - 1] && events[events.length - 1].dateTo) {
+      dates.push(moment(events[events.length - 1].dateTo).format(format));
+    }
+  }
+
+  if (!destinations.length && !dates.length) {
+    return ``;
+  }
 
   return `<div class="trip-info__main">
     <h1 class="trip-info__title">
-      ${citiesList.join(` &mdash; `)}
+      ${destinations.join(` &mdash; `)}
     </h1>
     <p class="trip-info__dates">
-        ${moment(dateStartTimestamp).format(`DD MMM`)} &mdash; ${moment(dateEndTimestamp).format(`DD MMM`)}
-     </p>
+      ${dates.join(` &mdash; `)}
+    </p>
   </div>`;
 };
