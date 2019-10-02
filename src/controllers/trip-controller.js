@@ -1,6 +1,6 @@
 import moment from "moment";
 import EventDaysContainer from '../components/trip-days-container';
-import {calculateTotalPriceEvtName, menuClickEvtName, Position, render} from '../utils';
+import {calculateTotalPriceEvtName, menuClickEvtName, renderItineraryEvtName, Position, render} from '../utils';
 import TripDayCard from '../components/trip-day-card';
 import DayInfo from '../components/day-info';
 import EventsList from '../components/events-list';
@@ -8,22 +8,27 @@ import Sort from '../components/sort';
 import EventController from '../controllers/event-controller';
 import NewEventController from "./new-event-controller";
 import Statistics from "../components/statistics";
+import Filters from "../components/filters";
+import {DEFAULT_FILTER, FUTURE_FILTER, PAST_FILTER} from "../data";
 
 export default class TripController {
-  constructor(container, events, menu) {
+  constructor(container, events) {
     this._container = container; // trip-events
     this._events = events; // array of objects with events
     this._eventsDaysList = new EventDaysContainer(); // контейнер для дней - trip-days
+
     this._sort = new Sort();
     this._sortType = `event`;
 
+    this._filters = new Filters([DEFAULT_FILTER, FUTURE_FILTER, PAST_FILTER]);
+    this._filters.setOnFilterCallback(this._onFilter.bind(this));
+    this._selectedFilter = DEFAULT_FILTER;
+
     // Храним создаваемую карточку для определения состояния
     this._creatingEvent = null;
-
-    this._menu = menu;
-    this._statistics = new Statistics([...this._events]);
-
     this._subscriptions = [];
+    this._statistics = null;
+
     this._onDataChange = this._onDataChange.bind(this);
     this._onChangeView = this._onChangeView.bind(this);
   }
@@ -40,6 +45,8 @@ export default class TripController {
   }
 
   init() {
+    this._filters.init();
+
     // Отрендерим сортировку
     render(this._container, this._sort.getElement(), Position.BEFORE_END);
     // Отрендерим контейнер для списка всех дней
@@ -49,8 +56,6 @@ export default class TripController {
 
     this._sort.getElement()
       .addEventListener(`click`, (evt) => this._onSortLinkClick(evt));
-
-    this._statistics.init();
   }
 
   _renderEvents(events) {
@@ -117,50 +122,75 @@ export default class TripController {
     this._onChangeView();
   }
 
-  _getSortedEvents() {
-    let sortedEvents = [];
+  _getSortedEventsWithFilter() {
+    let result = [];
+    let filteredEvents = [];
+
+    const currentTimestamp = new Date().getTime();
+
+    switch (this._selectedFilter) {
+      case FUTURE_FILTER:
+        filteredEvents = [...this._events].filter(({dateFrom}) => {
+          return dateFrom >= currentTimestamp;
+        });
+        break;
+
+      case PAST_FILTER:
+        filteredEvents = [...this._events].filter(({dateTo}) => {
+          return dateTo < currentTimestamp;
+        });
+        break;
+
+      default:
+        filteredEvents = [...this._events];
+    }
 
     switch (this._sortType) {
       case `time`:
-        sortedEvents = [...this._events].sort((a, b) => {
+        result = filteredEvents.sort((a, b) => {
           return (a.dateTo - a.dateFrom) - (b.dateTo - b.dateFrom);
         });
         break;
 
       case `price`:
-        sortedEvents = [...this._events].sort((a, b) => a.price - b.price);
+        result = filteredEvents.sort((a, b) => a.price - b.price);
         break;
 
       case `event`:
-        sortedEvents = [...this._events];
+        result = filteredEvents;
         break;
     }
 
-    return sortedEvents;
+    return result;
   }
 
   _render() {
     this._eventsDaysList.getElement().innerHTML = ``;
 
-    const sortedEvents = this._getSortedEvents();
+    const events = this._getSortedEventsWithFilter();
 
     if (this._sortType === `event`) {
-      this._renderEventsByDays(sortedEvents);
+      this._renderEventsByDays(events);
     } else {
-      this._renderEvents(sortedEvents);
+      this._renderEvents(events);
     }
 
     this._sort.getElement().querySelector(`.trip-sort__item--day`).innerHTML = this._sortType === `event` ? `Day` : ``;
   }
 
   _onSortLinkClick(evt) {
-    if (!evt.target.dataset.sortType) {
-      return;
+    if (evt.target.dataset && evt.target.dataset[`sortType`]) {
+      this._sortType = evt.target.dataset[`sortType`];
+      this._render();
     }
+  }
 
-    this._sortType = evt.target.dataset.sortType;
-
-    this._render();
+  _onFilter(evt) {
+    const {value} = evt.currentTarget;
+    if (this._filters.getAllowedFilters().includes(value)) {
+      this._selectedFilter = value;
+      this._render();
+    }
   }
 
   _onDataChange(newData, oldData) {
@@ -184,6 +214,7 @@ export default class TripController {
         break;
     }
     document.dispatchEvent(new CustomEvent(calculateTotalPriceEvtName, {detail: this._events}));
+    document.dispatchEvent(new CustomEvent(renderItineraryEvtName, {detail: this._events}));
     this._render(this._events);
   }
 
@@ -198,16 +229,21 @@ export default class TripController {
       return;
     }
 
-    this._menu.setActiveMenuItem(evt.target.textContent);
-    this._menu.render();
+    document.dispatchEvent(new CustomEvent(menuClickEvtName, {detail: evt.target.textContent}));
 
     switch (evt.target.textContent) {
       case `Table`:
-        this._statistics.getElement().classList.add(`visually-hidden`);
+        if (this._statistics) {
+          this._statistics.getElement().classList.add(`visually-hidden`);
+          this._statistics.removeElement();
+          this._statistics = null;
+        }
         this._eventsDaysList.getElement().classList.remove(`visually-hidden`);
         break;
 
       case `Stats`:
+        this._statistics = new Statistics([...this._events]);
+        this._statistics.init();
         this._eventsDaysList.getElement().classList.add(`visually-hidden`);
         this._statistics.getElement().classList.remove(`visually-hidden`);
         break;

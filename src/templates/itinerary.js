@@ -1,29 +1,42 @@
 import moment from "moment";
-import {getDestinationsNames} from "../data";
 
-export const getItineraryTemplate = (eventsArray) => {
-  const data = [...new Set(getDestinationsNames())];
+/**
+ * @param {object[]} events
+ * @return {string}
+ */
+export const getItineraryTemplate = (events) => {
+  const destinationsNames = events.map(({destinationName}) => destinationName);
 
   let destinations;
-  if (data.length > 2) {
+  if (destinationsNames.length > 2) {
     destinations = [
-      data[0],
+      destinationsNames[0],
       `...`,
-      data[data.length - 1]
+      destinationsNames[destinationsNames.length - 1]
     ];
   } else {
-    destinations = [];
+    destinations = destinationsNames;
   }
 
-  let dateStartTimestamp = eventsArray[0].dateFrom;
-  let dateEndTimestamp = eventsArray[eventsArray.length - 1].dateTo;
+  const format = `DD MMM`;
+  const dates = [];
+  if (events[0] && events[0].dateFrom) {
+    dates.push(moment(events[0].dateFrom).format(format));
+    if (events[events.length - 1] && events[events.length - 1].dateTo) {
+      dates.push(moment(events[events.length - 1].dateTo).format(format));
+    }
+  }
+
+  if (!destinations.length && !dates.length) {
+    return ``;
+  }
 
   return `<div class="trip-info__main">
     <h1 class="trip-info__title">
       ${destinations.join(` &mdash; `)}
     </h1>
     <p class="trip-info__dates">
-        ${moment(dateStartTimestamp).format(`DD MMM`)} &mdash; ${moment(dateEndTimestamp).format(`DD MMM`)}
-     </p>
+      ${dates.join(` &mdash; `)}
+    </p>
   </div>`;
 };

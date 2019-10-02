@@ -106,6 +106,7 @@ export const Mode = {
 
 export const finishNewEventCreationEvtName = `finish-new-event-creation`;
 export const calculateTotalPriceEvtName = `calculate-total-price`;
+export const renderItineraryEvtName = `render-itinerary`;
 export const menuClickEvtName = `menu-click`;
 
 // Быстрое глубокое клонирвание объекта, чтобы данные не менялись по ссылке

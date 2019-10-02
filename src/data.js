@@ -194,22 +194,9 @@ export const getMenuItems = () => {
   ];
 };
 
-export const getFiltersData = () => {
-  return [
-    {
-      name: `Everything`,
-      isChecked: true
-    },
-    {
-      name: `Future`,
-      isChecked: false
-    },
-    {
-      name: `Past`,
-      isChecked: false
-    }
-  ];
-};
+export const DEFAULT_FILTER = `everything`;
+export const FUTURE_FILTER = `future`;
+export const PAST_FILTER = `past`;
 
 const CARDS_AMOUNT = 3;
 export const getInitialEventsArray = () => {

@@ -8,7 +8,15 @@ export default class Menu extends AbstractComponent {
     this._onClickCallback = () => null;
   }
 
-  setActiveMenuItem(name) {
+  init() {
+    document.addEventListener(menuClickEvtName, ({detail}) => {
+      this._setActiveMenuItem(detail);
+      this._render();
+    });
+    this._render();
+  }
+
+  _setActiveMenuItem(name) {
     this._menuItems = this._menuItems.map((item) => {
       return Object.assign({}, item, {isActive: item.name === name});
     });
@@ -18,7 +26,7 @@ export default class Menu extends AbstractComponent {
     this._onClickCallback = callback;
   }
 
-  render() {
+  _render() {
     const tabsContainer = document.querySelector(`.trip-tabs`);
     if (tabsContainer) {
       tabsContainer.parentNode.removeChild(tabsContainer);

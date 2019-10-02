@@ -23,7 +23,6 @@ export default class Statistics extends AbstractComponent {
     this._moneyChartElem = this.getElement().querySelector(`.statistics__chart--money`);
     this._transportChartElem = this.getElement().querySelector(`.statistics__chart--transport`);
     this._timeSpendChartElem = this.getElement().querySelector(`.statistics__chart--time`);
-
   }
 
   init() {
@@ -31,9 +30,7 @@ export default class Statistics extends AbstractComponent {
     this._initTransportChart();
     this._initTimeSpendChart();
 
-    // Рендерит контейнер со статистикой
-    const pageMainContainer = document.querySelector(`.page-body__page-main`).querySelector(`.page-body__container`);
-    render(pageMainContainer, this.getElement(), Position.BEFORE_END);
+    render(document.querySelector(`.page-body__page-main .page-body__container`), this.getElement(), Position.BEFORE_END);
   }
 
   _initMoneyChart() {

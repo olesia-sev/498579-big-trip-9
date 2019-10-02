@@ -3,7 +3,7 @@ const MomentLocalesPlugin = require(`moment-locales-webpack-plugin`);
 
 module.exports = {
   mode: `development`,
-  entry: `./src/main.js`,
+  entry: `./src/index.js`,
   output: {
     filename: `bundle.js`,
     // eslint-disable-next-line no-undef
