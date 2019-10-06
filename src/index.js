@@ -1,4 +1,4 @@
-import MainController from './controllers/main-controller';
+import MainController from "./controllers/main-controller";
 
 const index = new MainController();
-index.start();
+index.init();

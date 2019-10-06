@@ -1,18 +1,26 @@
 import AbstractComponent from "./absctract-component";
-import {SortTypes} from "../data";
-import {Position, render} from "../utils";
+import {Position, render, SortTypes} from "../utils";
 
 export default class Sort extends AbstractComponent {
+  /**
+   * @param {string[]} items
+   */
   constructor(items) {
     super();
     this._items = items;
     this._onSortCallback = () => null;
   }
 
+  /**
+   * @param {function} callback
+   */
   setOnSortCallback(callback) {
     this._onSortCallback = callback;
   }
 
+  /**
+   * @return {string[]}
+   */
   getAllowedSortTypes() {
     return this._items;
   }
@@ -24,6 +32,9 @@ export default class Sort extends AbstractComponent {
     });
   }
 
+  /**
+   * @return {string}
+   */
   getTemplate() {
     return `<form class="trip-events__trip-sort trip-sort" action="#" method="get">
       <span class="trip-sort__item trip-sort__item--day">Day</span>

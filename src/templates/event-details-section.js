@@ -1,24 +1,24 @@
 /**
- * @param {string[]} offers
+ * @param {object[]} offers
  * @param {string} description
- * @param {string[]} images
+ * @param {object[]} pictures
  * @return {string}
  */
-export const getEventDetailsSectionTemplate = (offers, description, images) => {
+export const getEventDetailsSectionTemplate = (offers, description, pictures) => {
   const needRenderOffers = offers.length;
-  const needRenderDestination = description || images.length;
+  const needRenderDestination = description || pictures.length;
 
   if (needRenderOffers || needRenderDestination) {
     return `<section class="event__details">{{offersSection}}{{destinationSection}}</section>`
       .replace(`{{offersSection}}`, getOffersSectionTemplate(offers))
-      .replace(`{{destinationSection}}`, getDestinationSectionTemplate(description, images));
+      .replace(`{{destinationSection}}`, getDestinationSectionTemplate(description, pictures));
   }
 
   return ``;
 };
 
 /**
- * @param {array} offers
+ * @param {object[]} offers
  * @return {string}
  */
 export const getOffersSectionTemplate = (offers) => {
@@ -37,11 +37,11 @@ export const getOffersSectionTemplate = (offers) => {
  * @return {string}
  */
 export const getOfferTemplate = (offer) => {
-  const {id, name, price, isApplied} = offer;
+  const {id, title, price, accepted} = offer;
   return `<div class="event__offer-selector">
-      <input class="event__offer-checkbox visually-hidden" id="${id}-1" type="checkbox" name="${id}" ${isApplied ? `checked` : ``}>
+      <input class="event__offer-checkbox visually-hidden" id="${id}-1" type="checkbox" name="${id}" ${accepted ? `checked` : ``}>
       <label class="event__offer-label" for="${id}-1">
-        <span class="event__offer-title">${name}</span>
+        <span class="event__offer-title">${title}</span>
         &plus;&euro;&nbsp;<span class="event__offer-price">${price}</span>
       </label>
     </div>`;
@@ -49,22 +49,22 @@ export const getOfferTemplate = (offer) => {
 
 /**
  * @param {string} description
- * @param {string[]} images
+ * @param {object[]} pictures
  * @return {string}
  */
-export const getDestinationSectionTemplate = (description, images) => {
-  if (!description && !images.length) {
+export const getDestinationSectionTemplate = (description, pictures) => {
+  if (!description && !pictures.length) {
     return ``;
   }
   const template = `<section class="event__section event__section--destination">
       <h3 class="event__section-title event__section-title--destination">Destination</h3>
       {{descriptionBlock}}
-      {{imagesBlock}}
+      {{picturesBlock}}
     </section>`;
 
   return template
     .replace(`{{descriptionBlock}}`, getDescriptionBlockTemplate(description))
-    .replace(`{{imagesBlock}}`, getDestinationImagesTemplate(images));
+    .replace(`{{picturesBlock}}`, getDestinationPicturesTemplate(pictures));
 };
 
 /**
@@ -79,25 +79,26 @@ export const getDescriptionBlockTemplate = (description) => {
 };
 
 /**
- * @param {string[]} images
+ * @param {object[]} pictures
  * @return {string}
  */
-export const getDestinationImagesTemplate = (images) => {
-  if (!images.length) {
+export const getDestinationPicturesTemplate = (pictures) => {
+  if (!pictures.length) {
     return ``;
   }
   return `<div class="event__photos-container">
-      <div class="event__photos-tape">${images.map((src) => getDestinationImageTemplate(src)).join(``)}</div>
-    </div>`;
+    <div class="event__photos-tape">${pictures.map(({src, description}) => getDestinationPictureTemplate(src, description)).join(``)}</div>
+  </div>`;
 };
 
 /**
  * @param {string} src
+ * @param {string} description
  * @return {string}
  */
-export const getDestinationImageTemplate = (src) => {
+export const getDestinationPictureTemplate = (src, description) => {
   if (!src) {
     return ``;
   }
-  return `<img class="event__photo" src="${src}" alt="Event photo">`;
+  return `<img class="event__photo" src="${src}" alt="${description || `Event photo`}">`;
 };

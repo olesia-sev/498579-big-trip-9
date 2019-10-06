@@ -1,21 +1,37 @@
 import moment from "moment";
-import EventDaysContainer from '../components/trip-days-container';
-import {calculateTotalPriceEvtName, menuClickEvtName, Position, render, renderItineraryEvtName} from '../utils';
-import TripDayCard from '../components/trip-day-card';
-import DayInfo from '../components/day-info';
-import EventsList from '../components/events-list';
-import Sort from '../components/sort';
-import EventController from '../controllers/event-controller';
+import EventDaysContainer from "../components/trip-days-container";
+import {
+  calculateTotalPriceEvtName,
+  tabClickEvtName,
+  Position,
+  render,
+  renderItineraryEvtName,
+  VISUALLY_HIDDEN_CLASS_NAME
+} from "../utils";
+import TripDayCard from "../components/trip-day-card";
+import DayInfo from "../components/day-info";
+import EventsList from "../components/events-list";
+import Sort from "../components/sort";
+import EventController from "../controllers/event-controller";
 import NewEventController from "./new-event-controller";
 import Statistics from "../components/statistics";
 import Filters from "../components/filters";
-import {FilterTypes, SortTypes} from "../data";
+import {FilterTypes, SortTypes} from "../utils";
+import {getEmptyMessageTemplate, getLoadingMessageTemplate} from "../templates/other";
 
 export default class TripController {
-  constructor(container, events) {
-    this._container = container; // trip-events
-    this._events = events; // array of objects with events
-    this._eventsDaysList = new EventDaysContainer(); // контейнер для дней - trip-days
+  /**
+   * @param {Element} container
+   */
+  constructor(container) {
+    this._isInitialized = false;
+
+    this._container = container;
+    this._events = [];
+    this._allDestinations = [];
+    this._allOffers = [];
+
+    this._eventsDaysList = new EventDaysContainer();
 
     this._sort = new Sort(Object.values(SortTypes));
     this._sort.setOnSortCallback(this._onSort.bind(this));
@@ -27,72 +43,181 @@ export default class TripController {
 
     // Храним создаваемую карточку для определения состояния
     this._creatingEvent = null;
-    this._subscriptions = [];
+    this._closeEventsCallbacks = [];
     this._statistics = null;
+    this._tripSortContainer = null;
+    this._tripFiltersContainer = null;
 
-    this._onDataChange = this._onDataChange.bind(this);
-    this._onChangeView = this._onChangeView.bind(this);
+    this._onChangeEventsState = this._onChangeEventsState.bind(this);
+    this._onFinishEdit = this._onFinishEdit.bind(this);
   }
 
-  startNewEventCreation() {
-    if (this._creatingEvent === null) {
-      this._creatingEvent = new NewEventController(this._container.querySelector(`.trip-days`), this._onDataChange);
-      this._creatingEvent.init();
-    }
+  /**
+   * @param {object[]} events
+   */
+  setEvents(events) {
+    this._events = events;
   }
 
-  finishNewEventCreation() {
-    this._creatingEvent = null;
+  /**
+   * @param {object[]} destinations
+   */
+  setAllDestinations(destinations) {
+    this._allDestinations = destinations;
+  }
+
+  /**
+   * @param {object[]} offers
+   */
+  setAllOffers(offers) {
+    this._allOffers = offers;
   }
 
   init() {
+    // TripController инициализируем только один раз
+    if (this._isInitialized) {
+      throw new Error(`Trip controller already initialized`);
+    }
+
+    this._isInitialized = true;
+
     this._filters.init();
     this._sort.init();
+
+    this._tripSortContainer = document.querySelector(`.trip-events__trip-sort`);
+    this._tripFiltersContainer = document.querySelector(`.trip-filters`);
 
     // Отрендерим контейнер для списка всех дней
     render(this._container, this._eventsDaysList.getElement(), Position.BEFORE_END);
 
     this._renderEventsByDays([...this._events]);
+
+    this.toggleLoadingMessage();
+    this.toggleEmptyPageMessage();
+  }
+
+  startNewEventCreation() {
+    if (this._creatingEvent === null) {
+      this._creatingEvent = new NewEventController(
+          this._container.querySelector(`.trip-days`),
+          this._onChangeEventsState,
+          this._allDestinations,
+          this._allOffers
+      );
+      this._creatingEvent.init();
+      this.toggleEmptyPageMessage();
+    }
+  }
+
+  finishNewEventCreation() {
+    this._creatingEvent = null;
+    this.toggleEmptyPageMessage();
+  }
+
+  toggleLoadingMessage() {
+    const loadingMessageElement = document.querySelector(`.js-loading-message`);
+
+    if (loadingMessageElement) {
+      loadingMessageElement.parentNode.removeChild(loadingMessageElement);
+    } else {
+      render(this._container, getLoadingMessageTemplate(), Position.BEFORE_END);
+    }
+  }
+
+  toggleEmptyPageMessage() {
+    this._toggleSortAndFilterContainer();
+
+    if (this._events.length === 0) {
+      const emptyMessageElement = document.querySelector(`.js-empty-message`);
+
+      if (emptyMessageElement) {
+        emptyMessageElement.parentNode.removeChild(emptyMessageElement);
+      } else {
+        render(this._container, getEmptyMessageTemplate(), Position.BEFORE_END);
+      }
+    }
   }
 
   closeAllEvents() {
-    this._onChangeView();
+    this._onFinishEdit();
   }
 
+  /**
+   * @param {Event} evt
+   */
   toggleStatistics(evt) {
     evt.preventDefault();
 
-    if (evt.target.tagName !== `A`) {
-      return;
-    }
+    const {textContent} = evt.target;
 
-    document.dispatchEvent(new CustomEvent(menuClickEvtName, {detail: evt.target.textContent}));
+    document.dispatchEvent(new CustomEvent(tabClickEvtName, {detail: textContent}));
 
-    switch (evt.target.textContent) {
-      case `Table`:
-        if (this._statistics) {
-          this._statistics.getElement().classList.add(`visually-hidden`);
-          this._statistics.removeElement();
-          this._statistics = null;
+    const addNewEventButton = document.querySelector(`.trip-main__event-add-btn`);
+
+    if (textContent === `Stats`) {
+      this._statistics = new Statistics([...this._events]);
+      this._statistics.init();
+      this._eventsDaysList.getElement().classList.add(VISUALLY_HIDDEN_CLASS_NAME);
+      this._statistics.getElement().classList.remove(VISUALLY_HIDDEN_CLASS_NAME);
+      addNewEventButton.disabled = true;
+      this._toggleSortAndFilterContainer(`hide`);
+    } else {
+      if (this._statistics) {
+        const statisticsElement = this._statistics.getElement();
+        if (statisticsElement) {
+          statisticsElement.parentNode.removeChild(statisticsElement);
         }
-        this._eventsDaysList.getElement().classList.remove(`visually-hidden`);
-        break;
-
-      case `Stats`:
-        this._statistics = new Statistics([...this._events]);
-        this._statistics.init();
-        this._eventsDaysList.getElement().classList.add(`visually-hidden`);
-        this._statistics.getElement().classList.remove(`visually-hidden`);
-        break;
+        this._statistics.removeElement();
+        this._statistics = null;
+      }
+      this._eventsDaysList.getElement().classList.remove(VISUALLY_HIDDEN_CLASS_NAME);
+      addNewEventButton.disabled = false;
+      this._toggleSortAndFilterContainer(`show`);
     }
   }
 
-  _renderEvents(events) {
-    const dayElement = new TripDayCard().getElement(); // li trip-days__item  day
-    const eventsList = new EventsList().getElement(); // trip-events__list
-    const dayInfo = new DayInfo().getElement();
+  _toggleSortAndFilterContainer(action) {
+    const show = () => {
+      this._tripFiltersContainer.classList.remove(VISUALLY_HIDDEN_CLASS_NAME);
+      this._tripSortContainer.classList.remove(VISUALLY_HIDDEN_CLASS_NAME);
+    };
 
+    const hide = () => {
+      this._tripFiltersContainer.classList.add(VISUALLY_HIDDEN_CLASS_NAME);
+      this._tripSortContainer.classList.add(VISUALLY_HIDDEN_CLASS_NAME);
+    };
+
+    const isLengthValid = this._events.length > 0;
+
+    switch (true) {
+      case action === `show` && isLengthValid:
+        show();
+        break;
+
+      case action === `hide` && isLengthValid:
+        hide();
+        break;
+
+      default:
+        if (isLengthValid) {
+          show();
+        } else {
+          hide();
+        }
+    }
+  }
+
+  /**
+   * @param {object[]} events
+   * @private
+   */
+  _renderEvents(events) {
+    const dayElement = new TripDayCard().getElement();
+    const eventsList = new EventsList().getElement();
+
+    const dayInfo = new DayInfo(``).getElement();
     render(dayElement, dayInfo, Position.BEFORE_END);
+
     dayElement.querySelector(`.day__info`).innerHTML = ``;
     render(this._eventsDaysList.getElement(), dayElement, Position.BEFORE_END);
 
@@ -102,6 +227,10 @@ export default class TripController {
     });
   }
 
+  /**
+   * @param {object[]} events
+   * @private
+   */
   _renderEventsByDays(events) {
     // Создадим объект с упорядоченными по датам массивами событий
     // { 2019-01-01: [ {event1}, {event2}, ... ], ... }
@@ -136,76 +265,99 @@ export default class TripController {
     });
   }
 
+  /**
+   * @param {Element} container
+   * @param {object} event
+   * @private
+   */
   _renderEvent(container, event) {
     const eventController = new EventController(
         container,
         event,
-        this._onDataChange,
-        this._onChangeView
+        this._allDestinations,
+        this._allOffers,
+        this._onChangeEventsState,
+        this._onFinishEdit
     );
     eventController.init();
-    this._subscriptions.push(eventController.closeEditForm.bind(eventController));
+    this._closeEventsCallbacks.push(eventController.closeEditForm.bind(eventController));
   }
 
+  /**
+   * @return {object[]}
+   * @private
+   */
   _getSortedEventsWithFilter() {
-    let result = [];
-    let filteredEvents = [];
-
     const currentTimestamp = Date.now();
 
-    switch (this._selectedFilterType) {
-      // Список запланированных точек маршрута, т. е. точек,
-      // у которых дата начала события больше, чем текущая
-      case FilterTypes.FUTURE:
-        filteredEvents = [...this._events].filter(({dateFrom}) => {
-          return dateFrom > currentTimestamp;
-        });
-        break;
+    const getFilteredEvents = (events) => {
+      switch (this._selectedFilterType) {
+        // Список запланированных точек маршрута, т. е. точек,
+        // у которых дата начала события больше, чем текущая
+        case FilterTypes.FUTURE: {
+          return events.filter(({dateFrom}) => dateFrom > currentTimestamp);
+        }
 
-      // Список пройденных точек маршрута, т. е. точек,
-      // у которых дата прибытия в точку маршрута меньше, чем текущая;
-      case FilterTypes.PAST:
-        filteredEvents = [...this._events].filter(({dateTo}) => {
-          return dateTo < currentTimestamp;
-        });
-        break;
+        // Список пройденных точек маршрута, т. е. точек,
+        // у которых дата прибытия в точку маршрута меньше, чем текущая;
+        case FilterTypes.PAST: {
+          return events.filter(({dateTo}) => dateTo < currentTimestamp);
+        }
 
-      default:
-        filteredEvents = [...this._events];
-    }
+        default: {
+          return events;
+        }
+      }
+    };
 
+    // Сортировка работает в одном направлении — от максимального к минимальному
     switch (this._selectedSortType) {
-      case SortTypes.TIME:
-        result = filteredEvents.sort((a, b) => {
-          return (a.dateTo - a.dateFrom) - (b.dateTo - b.dateFrom);
-        });
-        break;
+      // При сортировке по длительности в начале списка окажутся самые долгие точки маршрута
+      case SortTypes.TIME: {
+        return getFilteredEvents([...this._events]).sort((a, b) => (b.dateTo - b.dateFrom) - (a.dateTo - a.dateFrom));
+      }
 
-      case SortTypes.PRICE:
-        result = filteredEvents.sort((a, b) => a.price - b.price);
-        break;
+      // При сортировке по стоимости в начале списка окажутся самые дорогие точки маршрута
+      case SortTypes.PRICE: {
+        return getFilteredEvents([...this._events]).sort((a, b) => b.price - a.price);
+      }
 
-      default:
-        return filteredEvents;
+      // Разбивка по дням
+      default: {
+        return getFilteredEvents([...this._events]).sort(TripController._defaultSort);
+      }
     }
-
-    return result;
   }
 
+  /**
+   * @private
+   */
   _render() {
     this._eventsDaysList.getElement().innerHTML = ``;
 
-    const events = this._getSortedEventsWithFilter();
+    if (this._events.length) {
+      const tripSortItemDay = document.querySelector(`.trip-sort__item--day`);
 
-    if (this._selectedSortType === `event`) {
-      this._renderEventsByDays(events);
+      if (this._selectedSortType === SortTypes.DEFAULT) {
+        tripSortItemDay.textContent = `Day`;
+        this._renderEventsByDays(this._getSortedEventsWithFilter());
+      } else {
+        this._renderEvents(this._getSortedEventsWithFilter());
+        tripSortItemDay.textContent = ``;
+      }
+
+      this._tripSortContainer.classList.remove(VISUALLY_HIDDEN_CLASS_NAME);
     } else {
-      this._renderEvents(events);
+      this._tripSortContainer.classList.add(VISUALLY_HIDDEN_CLASS_NAME);
     }
 
-    this._sort.getElement().querySelector(`.trip-sort__item--day`).innerHTML = this._selectedSortType === SortTypes.DEFAULT ? `Day` : ``;
+    this.toggleEmptyPageMessage();
   }
 
+  /**
+   * @param {Event} evt
+   * @private
+   */
   _onSort(evt) {
     const {value} = evt.currentTarget;
 
@@ -215,6 +367,10 @@ export default class TripController {
     }
   }
 
+  /**
+   * @param {Event} evt
+   * @private
+   */
   _onFilter(evt) {
     const {value} = evt.currentTarget;
     if (this._filters.getAllowedFilterTypes().includes(value)) {
@@ -223,32 +379,51 @@ export default class TripController {
     }
   }
 
-  _onDataChange(newData, oldData) {
-    const index = this._events.findIndex((event) => {
-      return event === oldData;
-    });
+  /**
+   * @param {object} newEvent
+   * @param {object} oldEvent
+   * @private
+   */
+  _onChangeEventsState(newEvent, oldEvent) {
+    const index = this._events.findIndex((event) => event === oldEvent);
 
     switch (true) {
-      // Если newData равно null, то это значит, что элемент удален.
+      // Если newEvent равно null, то это значит, что элемент удален.
       // Создаем новый массив не включая в него удаленный элемент.
-      case !newData && index > -1:
+      case !newEvent && index > -1:
         this._events = [...this._events.slice(0, index), ...this._events.slice(index + 1)];
         break;
 
-      case newData && index > -1:
-        this._events[index] = newData;
+      case newEvent && index > -1:
+        this._events[index] = newEvent;
         break;
 
-      case newData && index === -1:
-        this._events = [newData, ...this._events];
+      case newEvent && index === -1:
+        this._events = [newEvent, ...this._events];
         break;
     }
+
+    this._events = this._events.sort(TripController._defaultSort);
+
     document.dispatchEvent(new CustomEvent(calculateTotalPriceEvtName, {detail: this._events}));
     document.dispatchEvent(new CustomEvent(renderItineraryEvtName, {detail: this._events}));
-    this._render(this._events);
+    this._render();
   }
 
-  _onChangeView() {
-    this._subscriptions.forEach((subscription) => subscription());
+  /**
+   * @private
+   */
+  _onFinishEdit() {
+    this._closeEventsCallbacks.forEach((callback) => callback());
+  }
+
+  /**
+   * @param {object} a
+   * @param {object} b
+   * @return {number}
+   * @private
+   */
+  static _defaultSort(a, b) {
+    return a.dateFrom - b.dateFrom;
   }
 }

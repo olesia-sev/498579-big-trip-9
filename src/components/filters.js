@@ -2,16 +2,25 @@ import AbstractComponent from "./absctract-component";
 import {capitalizeFirstLetter, Position, render} from "../utils";
 
 export default class Filters extends AbstractComponent {
+  /**
+   * @param {string[]} items
+   */
   constructor(items) {
     super();
     this._items = items;
     this._onFilterCallback = () => null;
   }
 
+  /**
+   * @param {function} callback
+   */
   setOnFilterCallback(callback) {
     this._onFilterCallback = callback;
   }
 
+  /**
+   * @return {string[]}
+   */
   getAllowedFilterTypes() {
     return this._items;
   }
@@ -23,6 +32,9 @@ export default class Filters extends AbstractComponent {
     });
   }
 
+  /**
+   * @return {string}
+   */
   getTemplate() {
     const getFilterTemplate = (filter, index) => {
       return `<div class="trip-filters__filter">

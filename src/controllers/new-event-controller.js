@@ -3,24 +3,34 @@ import {Position, Mode, render, finishNewEventCreationEvtName} from "../utils";
 import AbstractEventController from "./abstract-event-controller";
 
 export default class NewEventController extends AbstractEventController {
-  constructor(container, onDataChange) {
+  /**
+   * @param {Element} container
+   * @param {function} onChangeEventsState
+   * @param {object[]} allDestinations
+   * @param {object[]} allOffers
+   */
+  constructor(container, onChangeEventsState, allDestinations, allOffers) {
     const date = Date.now();
     const event = {
       type: ``,
-      destinationName: ``,
+      destination: {
+        name: ``,
+        description: ``,
+        pictures: [],
+      },
       dateFrom: date,
       dateTo: date,
       price: 0,
       offers: [],
-      isFavourite: false,
+      isFavorite: false,
       mode: Mode.ADDING
     };
-    super(container, new TripEventEditing(event), event, onDataChange);
+    super(container, new TripEventEditing(event, allDestinations, allOffers), event, onChangeEventsState);
   }
 
   init() {
     const onEscKeyDown = (evt) => {
-      NewEventController._onEscKeyDown(evt, closeForm);
+      NewEventController.onEscKeyDown(evt, closeForm);
     };
 
     const element = this._component.getElement();
@@ -33,8 +43,10 @@ export default class NewEventController extends AbstractEventController {
 
     element.addEventListener(`submit`, (evt) => {
       evt.preventDefault();
-      this._save(this._component.getData());
-      closeForm();
+      if (this._component.isEventValid()) {
+        this.saveEvent(this._component.getEvent());
+        closeForm();
+      }
     });
 
     element.querySelector(`.event__reset-btn`)

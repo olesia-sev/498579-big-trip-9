@@ -1,32 +1,62 @@
-export const getRandomBoolean = () => {
-  return Math.random() >= 0.5;
-};
-
-export const getRandomArrayIndex = (arr) => {
-  return Math.floor(Math.random() * arr.length);
-};
+import ChartDataLabels from "chartjs-plugin-datalabels";
 
 /**
- * @param {number} min
- * @param {number} max
- * @return {number}
+ * @type {string}
  */
-export const getRandomInRange = (min, max) => {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-};
-
-export const capitalizeFirstLetter = (str) => {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};
+export const VISUALLY_HIDDEN_CLASS_NAME = `visually-hidden`;
 
 /**
- * @return {number}
+ * @type {string}
  */
-export const getRandomTimestamp = () => {
-  // 86400000 = 24 * 60 * 60 * 1000
-  return Date.now() + 1 + Math.floor(Math.random() * 7) * 86400000;
-};
+export const FLATPICKR_DATE_TIME_FORMAT = `d.m.Y H:i`;
 
+/**
+ * @type {string}
+ */
+export const MOMENT_DATE_TIME_FORMAT = `DD.MM.YYYY HH:mm`;
+
+/**
+ * @type {string}
+ */
+export const MOMENT_TIME_FORMAT = `HH:mm`;
+
+/**
+ * @type {string}
+ */
+export const finishNewEventCreationEvtName = `finish-new-event-creation`;
+
+/**
+ * @type {string}
+ */
+export const calculateTotalPriceEvtName = `calculate-total-price`;
+
+/**
+ * @type {string}
+ */
+export const renderItineraryEvtName = `render-itinerary`;
+
+/**
+ * @type {string}
+ */
+export const tabClickEvtName = `tab-click`;
+
+/**
+ * @type {object[]}
+ */
+export const TABS = [
+  {
+    name: `Table`,
+    isActive: true
+  },
+  {
+    name: `Stats`,
+    isActive: false
+  }
+];
+
+/**
+ * @type {{AFTER_END: string, BEFORE_BEGIN: string, BEFORE_END: string, AFTER_BEGIN: string}}
+ */
 export const Position = {
   BEFORE_BEGIN: `beforebegin`, // Вставить узлы или строки до container
   AFTER_BEGIN: `afterbegin`, // Вставить узлы или строки в начало container
@@ -35,6 +65,104 @@ export const Position = {
 };
 
 /**
+ * @type {{ADDING: string, DEFAULT: string}}
+ */
+export const Mode = {
+  ADDING: `adding`,
+  DEFAULT: `default`,
+};
+
+/**
+ * @type {{PRICE: string, TIME: string, DEFAULT: string}}
+ */
+export const SortTypes = {
+  DEFAULT: `event`,
+  TIME: `time`,
+  PRICE: `price`
+};
+
+/**
+ * @type {{PAST: string, FUTURE: string, DEFAULT: string}}
+ */
+export const FilterTypes = {
+  DEFAULT: `everything`,
+  FUTURE: `future`,
+  PAST: `past`
+};
+
+/**
+ * @type {Set<string>}
+ */
+export const typesIn = new Set([`check-in`, `restaurant`, `sightseeing`]);
+
+/**
+ * @type {Set<string>}
+ */
+export const typesTo = new Set([`bus`, `drive`, `flight`, `ship`, `taxi`, `train`, `transport`]);
+
+/**
+ * @param {object} data
+ * @return {{data: *, plugins: [*], type: string}}
+ */
+export const getChartConfig = (data) => ({
+  plugins: [ChartDataLabels],
+  type: `horizontalBar`,
+  data,
+});
+
+/**
+ * @param {string} str
+ * @return {string}
+ */
+export const capitalizeFirstLetter = (str) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+/**
+ * @param {string} type
+ * @return {string}
+ */
+export const getTypeTitle = (type) => {
+  switch (true) {
+    case typesIn.has(type): {
+      return `${capitalizeFirstLetter(type)} in`;
+    }
+    case typesTo.has(type): {
+      return `${capitalizeFirstLetter(type)} to`;
+    }
+    default: {
+      return `${capitalizeFirstLetter(type)}`;
+    }
+  }
+};
+
+/**
+ * @param {string} type
+ * @return {boolean}
+ */
+export const isEventTypeAllowed = (type) => typesIn.has(type) || typesTo.has(type);
+
+/**
+ * Быстрое глубокое клонирвание объекта, чтобы данные не менялись по ссылке
+ * @param {object|array} obj
+ * @return {any}
+ */
+export const clone = (obj) => {
+  return JSON.parse(JSON.stringify(obj));
+};
+
+/**
+ * @param {string} template
+ * @return {Node}
+ */
+export const createElement = (template) => {
+  const newElement = document.createElement(`div`);
+  newElement.innerHTML = template;
+  return newElement.firstChild;
+};
+
+/**
+ * @type {{beforeend: {method: string}, beforebegin: {method: string}, afterend: {method: string}, afterbegin: {method: string}}}
  * <!-- beforebegin -->
  * <p>
  * <!-- afterbegin -->
@@ -58,19 +186,18 @@ const PositionsMap = {
   }
 };
 
-export const createElement = (template) => {
-  const newElement = document.createElement(`div`);
-  newElement.innerHTML = template;
-  return newElement.firstChild;
-};
-
-export const render = (container, element, place) => {
+/**
+ * @param {Element} container
+ * @param {Element|string} element
+ * @param {string} place
+ */
+export const render = (container, element, place = `default`) => {
   if (element === ``) {
     container.innerHTML = ``;
     return;
   }
 
-  const htmlElement = element instanceof HTMLElement ? element : createElement(element);
+  const htmlElement = element instanceof Element ? element : createElement(element);
 
   if (htmlElement) {
     if (Object.keys(PositionsMap).includes(place)) {
@@ -82,49 +209,33 @@ export const render = (container, element, place) => {
   }
 };
 
+/**
+ * @type {number}
+ */
+const ESC_KEYCODE = 27;
+
+/**
+ * @param {KeyboardEvent|Event} evt
+ * @param {function} action
+ */
 export const isEscEvent = (evt, action) => {
-  const ESC_KEYCODE = 27;
+  // noinspection JSDeprecatedSymbols
   if (evt.keyCode === ESC_KEYCODE) {
     action();
   }
 };
 
-export const FLATPICKR_DATE_TIME_FORMAT = `d.m.Y H:i`;
-export const MOMENT_DATE_TIME_FORMAT = `DD.MM.YYYY HH:mm`;
-export const MOMENT_TIME_FORMAT = `HH:mm`;
+/**
+ * @type {number}
+ */
+const SHAKE_DURATION = 600;
 
-export const Mode = {
-  ADDING: `adding`,
-  DEFAULT: `default`,
-};
-
-export const finishNewEventCreationEvtName = `finish-new-event-creation`;
-export const calculateTotalPriceEvtName = `calculate-total-price`;
-export const renderItineraryEvtName = `render-itinerary`;
-export const menuClickEvtName = `menu-click`;
-
-// Быстрое глубокое клонирвание объекта, чтобы данные не менялись по ссылке
-export const clone = (obj) => {
-  return JSON.parse(JSON.stringify(obj));
-};
-
-export const ChartType = {
-  MONEY: `money`,
-  TRANSPORT: `transport`,
-  TIME: `time`
-};
-
-export const Emoji = {
-  FLAG: `🚩`,
-  BUS: `🚍`,
-  CHECK_IN: `🏨`,
-  DRIVE: `🚘`,
-  FLIGHT: `✈️`,
-  RESTAURANT: `🍴`,
-  SHIP: `🚢`,
-  SIGHTSEEING: `👁️`,
-  TAXI: `🚖`,
-  TRAIN: `🚂`,
-  TRANSPORT: `🚆`,
-  TRIP: `🗻`
+/**
+ * @param {Element} element
+ */
+export const shakeThat = (element) => {
+  element.style = `animation: shake ${SHAKE_DURATION / 1000}s;`;
+  setTimeout(() => {
+    element.style = ``;
+  }, SHAKE_DURATION);
 };

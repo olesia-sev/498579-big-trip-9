@@ -1,5 +1,5 @@
 {
-  "name": "BigTrip",
+  "name": "big-trip",
   "version": "1.0.0",
   "private": true,
   "description": "Личный проект «Большое путешествие» от HTML Academy",
@@ -27,6 +27,7 @@
     "chartjs-plugin-datalabels": "0.7.0",
     "flatpickr": "4.6.2",
     "moment": "2.24.0",
-    "moment-locales-webpack-plugin": "1.1.0"
+    "moment-locales-webpack-plugin": "1.1.0",
+    "uuid": "3.3.3"
   }
 }
