@@ -1,8 +1,8 @@
 import TripEvent from "../components/trip-event";
 import TripEventEditing from "../components/trip-event-editing";
-import {Position, render, shakeThat} from "../utils";
+import {Position, render} from "../utils";
 import AbstractEventController from "./abstract-event-controller";
-import {editEvent} from "../api";
+import {deleteEvent, updateEvent} from "../api";
 
 export default class EventController extends AbstractEventController {
   /**
@@ -49,37 +49,46 @@ export default class EventController extends AbstractEventController {
 
   showEditForm() {
     this._component = new TripEventEditing(this._event, this._allDestinations, this._allOffers);
+
     render(this._tripEvent.getElement(), this._component.getElement());
 
     const container = this._component.getElement().querySelector(`form.event--edit`);
     const interactiveElements = container.querySelectorAll(`input, button`);
 
-    container
-      .addEventListener(`submit`, (evt) => {
-        evt.preventDefault();
-        if (this._component.isEventValid()) {
-          interactiveElements.forEach((element) => {
-            element.disabled = true;
-          });
-          editEvent(this._component.getEvent())
-            .then(() => {
-              this.saveEvent(this._component.getEvent());
-              this.closeEditForm();
-            })
-            .catch(() => {
-              shakeThat(container);
-              interactiveElements.forEach((element) => {
-                element.disabled = true;
-              });
-            });
-        }
-      });
+    container.addEventListener(`submit`, (evt) => {
+      evt.preventDefault();
 
-    this._component.getElement().querySelector(`.event__reset-btn`)
-      .addEventListener(`click`, (evt) => {
-        evt.preventDefault();
-        this.deleteEvent();
-      });
+      if (this._component.isEventValid()) {
+        EventController.beforeRequestSending(container, interactiveElements);
+        this._component.setSubmitButtonText();
+
+        updateEvent(this._component.getEvent())
+          .then(() => {
+            this.saveEvent(this._component.getEvent());
+            this.closeEditForm();
+          })
+          .catch(() => {
+            EventController.afterRequestSending(container, interactiveElements);
+            this._component.setDefaultSubmitButtonText();
+          });
+      }
+    });
+
+    container.addEventListener(`reset`, (evt) => {
+      evt.preventDefault();
+
+      EventController.beforeRequestSending(container, interactiveElements);
+      this._component.setResetButtonText();
+
+      deleteEvent(this._event.id)
+        .then(() => {
+          this.deleteEvent();
+        })
+        .catch(() => {
+          EventController.afterRequestSending(container, interactiveElements);
+          this._component.setDefaultResetButtonText();
+        });
+    });
 
     document.addEventListener(`keydown`, this._onEscKeyDownEventHandler);
   }

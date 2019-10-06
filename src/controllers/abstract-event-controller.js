@@ -1,4 +1,4 @@
-import {isEscEvent} from "../utils";
+import {hideError, isEscEvent, shakeThat, showError} from "../utils";
 
 export default class AbstractEventController {
   /**
@@ -40,5 +40,29 @@ export default class AbstractEventController {
    */
   static onEscKeyDown(evt, action) {
     isEscEvent(evt, action);
+  }
+
+  /**
+   * @param {HTMLElement} container
+   * @param {NodeList} interactiveElements
+   */
+  static beforeRequestSending(container, interactiveElements) {
+    hideError(container);
+    interactiveElements.forEach((element) => {
+      element.disabled = true;
+    });
+  }
+
+  /**
+   * @param {HTMLElement} container
+   * @param {NodeList} interactiveElements
+   */
+  static afterRequestSending(container, interactiveElements) {
+    shakeThat(container);
+    showError(container);
+
+    interactiveElements.forEach((element) => {
+      element.disabled = false;
+    });
   }
 }
