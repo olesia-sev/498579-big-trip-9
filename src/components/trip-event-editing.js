@@ -46,6 +46,8 @@ export default class TripEventEditing extends AbstractComponent {
 
     this._mode = mode;
 
+    this._startPickr = null;
+    this._endPickr = null;
     this._flatpickrInit();
 
     this._setEventHandlerOnEventTypeChange();
@@ -101,6 +103,15 @@ export default class TripEventEditing extends AbstractComponent {
 
   setDefaultResetButtonText() {
     this.setResetButtonText(this._mode === Mode.DEFAULT ? `Delete` : `Cancel`);
+  }
+
+  flatpickrDestroy() {
+    if (this._startPickr) {
+      this._startPickr.destroy();
+    }
+    if (this._endPickr) {
+      this._endPickr.destroy();
+    }
   }
 
   /**
@@ -230,6 +241,9 @@ export default class TripEventEditing extends AbstractComponent {
       this._event.dateTo = selectedDates[0].getTime();
       this._preventSaving();
     });
+
+    this._startPickr = startPickr;
+    this._endPickr = endPickr;
   }
 
   /**
@@ -237,7 +251,7 @@ export default class TripEventEditing extends AbstractComponent {
    */
   _setEventHandlerOnEventTypeChange() {
     const typeRadios = this.getElement().querySelectorAll(`.event__type-input`);
-    let typeTitle = this.getElement().querySelector(`.event__type-output`);
+    const typeTitle = this.getElement().querySelector(`.event__type-output`);
     const oldOffersState = clone(this._event.offers);
 
     typeRadios.forEach((radio) => {

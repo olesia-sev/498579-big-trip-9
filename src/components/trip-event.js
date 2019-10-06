@@ -73,24 +73,25 @@ export default class TripEvent extends AbstractComponent {
    */
   _getDuration() {
     const duration = moment.duration(this._dateTo - this._dateFrom);
-    const months = duration.months();
-    const days = duration.days();
+    const days = Math.floor(duration.asDays());
     const hours = duration.hours();
     const minutes = duration.minutes();
-    const result = [];
-    if (months > 0) {
-      result.push(months < 10 ? `0${months}M` : `${months}M`);
-    }
-    if (days > 0) {
-      result.push(days < 10 ? `0${days}D` : `${days}D`);
+    const result = {
+      days: null,
+      hours: null,
+      minutes: `00M`
+    };
+    if (days > 1) {
+      result.days = days < 10 ? `0${days}D` : `${days}D`;
+      result.hours = `00H`;
     }
     if (hours > 0) {
-      result.push(hours < 10 ? `0${hours}H` : `${hours}H`);
+      result.hours = hours < 10 ? `0${hours}H` : `${hours}H`;
     }
     if (minutes > 0) {
-      result.push(minutes < 10 ? `0${minutes}M` : `${minutes}M`);
+      result.minutes = minutes < 10 ? `0${minutes}M` : `${minutes}M`;
     }
-    return result.join(` `);
+    return Object.values(result).join(` `);
   }
 
   /**

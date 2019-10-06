@@ -55,10 +55,10 @@ export default class MainController {
         tripController.setAllDestinations(allDestinations);
         tripController.setAllOffers(allOffers);
 
-        this._dispatchEvents(events);
+        MainController._dispatchEvents(events);
       })
       .catch(() => {
-        this._dispatchEvents([]);
+        MainController._dispatchEvents([]);
       })
       .finally(() => {
         document.querySelector(`.trip-info__cost`).classList.remove(VISUALLY_HIDDEN_CLASS_NAME);
@@ -128,7 +128,7 @@ export default class MainController {
    * @param {object[]} detail
    * @private
    */
-  _dispatchEvents(detail) {
+  static _dispatchEvents(detail) {
     document.dispatchEvent(new CustomEvent(calculateTotalPriceEvtName, {detail}));
     document.dispatchEvent(new CustomEvent(renderItineraryEvtName, {detail}));
   }

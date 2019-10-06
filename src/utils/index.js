@@ -41,6 +41,16 @@ export const renderItineraryEvtName = `render-itinerary`;
 export const tabClickEvtName = `tab-click`;
 
 /**
+ * @type {number}
+ */
+export const ESC_KEYCODE = 27;
+
+/**
+ * @type {number}
+ */
+export const SHAKE_DURATION = 600;
+
+/**
  * @type {object[]}
  */
 export const TABS = [
@@ -53,6 +63,31 @@ export const TABS = [
     isActive: false
   }
 ];
+
+/**
+ * @type {{beforeend: {method: string}, beforebegin: {method: string}, afterend: {method: string}, afterbegin: {method: string}}}
+ * <!-- beforebegin -->
+ * <p>
+ * <!-- afterbegin -->
+ * foo
+ * <!-- beforeend -->
+ * </p>
+ * <!-- afterend -->
+ */
+export const PositionsMap = {
+  beforebegin: {
+    method: `before` // Вставить узлы или строки до container
+  },
+  afterbegin: {
+    method: `prepend` // Вставить узлы или строки в начало container
+  },
+  beforeend: {
+    method: `append` // Вставить узлы или строки в конец container
+  },
+  afterend: {
+    method: `after` // Вставить узлы или строки после container
+  }
+};
 
 /**
  * @type {{AFTER_END: string, BEFORE_BEGIN: string, BEFORE_END: string, AFTER_BEGIN: string}}
@@ -108,6 +143,17 @@ export const getChartConfig = (data) => ({
   plugins: [ChartDataLabels],
   type: `horizontalBar`,
   data,
+  options: {
+    scales: {
+      xAxes: [
+        {
+          ticks: {
+            beginAtZero: true
+          }
+        }
+      ]
+    }
+  }
 });
 
 /**
@@ -162,31 +208,6 @@ export const createElement = (template) => {
 };
 
 /**
- * @type {{beforeend: {method: string}, beforebegin: {method: string}, afterend: {method: string}, afterbegin: {method: string}}}
- * <!-- beforebegin -->
- * <p>
- * <!-- afterbegin -->
- * foo
- * <!-- beforeend -->
- * </p>
- * <!-- afterend -->
- */
-const PositionsMap = {
-  beforebegin: {
-    method: `before` // Вставить узлы или строки до container
-  },
-  afterbegin: {
-    method: `prepend` // Вставить узлы или строки в начало container
-  },
-  beforeend: {
-    method: `append` // Вставить узлы или строки в конец container
-  },
-  afterend: {
-    method: `after` // Вставить узлы или строки после container
-  }
-};
-
-/**
  * @param {Element} container
  * @param {Element|string} element
  * @param {string} place
@@ -210,11 +231,6 @@ export const render = (container, element, place = `default`) => {
 };
 
 /**
- * @type {number}
- */
-const ESC_KEYCODE = 27;
-
-/**
  * @param {KeyboardEvent|Event} evt
  * @param {function} action
  */
@@ -224,11 +240,6 @@ export const isEscEvent = (evt, action) => {
     action();
   }
 };
-
-/**
- * @type {number}
- */
-const SHAKE_DURATION = 600;
 
 /**
  * @param {HTMLElement} element
