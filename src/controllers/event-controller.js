@@ -1,16 +1,28 @@
 import TripEvent from "../components/trip-event";
 import TripEventEditing from "../components/trip-event-editing";
-import {Position, render} from "../utils";
+import {Position, render, shakeThat} from "../utils";
 import AbstractEventController from "./abstract-event-controller";
+import {editEvent} from "../api";
 
 export default class EventController extends AbstractEventController {
-  constructor(container, event, onDataChange, onChangeView) {
-    super(container, null, event, onDataChange);
-    this._onChangeView = onChangeView;
-    this._tripEvent = new TripEvent(event);
+  /**
+   * @param {Element} container
+   * @param {object} event
+   * @param {object[]} allDestinations
+   * @param {object[]} allOffers
+   * @param {function} onChangeEventsState
+   * @param {function} onFinishEdit
+   */
+  constructor(container, event, allDestinations, allOffers, onChangeEventsState, onFinishEdit) {
+    super(container, null, event, onChangeEventsState);
 
-    this._onEscKeyDown = this._onEscKeyDown.bind(this);
-    this._showEditForm = this._showEditForm.bind(this);
+    this._tripEvent = new TripEvent(event);
+    this._allDestinations = allDestinations;
+    this._allOffers = allOffers;
+    this._onFinishEdit = onFinishEdit;
+
+    this._onEscKeyDownEventHandler = this._onEscKeyDownEventHandler.bind(this);
+    this.showEditForm = this.showEditForm.bind(this);
     this.closeEditForm = this.closeEditForm.bind(this);
   }
 
@@ -18,37 +30,11 @@ export default class EventController extends AbstractEventController {
     this._tripEvent.getElement()
       .querySelector(`.event__rollup-btn`)
       .addEventListener(`click`, () => {
-        this._onChangeView();
-        this._showEditForm();
+        this._onFinishEdit();
+        this.showEditForm();
       });
 
     render(this._container, this._tripEvent.getElement(), Position.BEFORE_END);
-  }
-
-  _onEscKeyDown(evt) {
-    EventController._onEscKeyDown(evt, this.closeEditForm);
-  }
-
-  _showEditForm() {
-    this._component = new TripEventEditing(this._data);
-    render(this._tripEvent.getElement(), this._component.getElement());
-    this._component.getElement()
-      .querySelector(`form.event--edit`)
-      .addEventListener(`submit`, (evt) => {
-        evt.preventDefault();
-        this._save(this._component.getData());
-        this.closeEditForm();
-      });
-
-    this._component.getElement().querySelector(`.event__reset-btn`)
-      .addEventListener(`click`, (evt) => {
-        evt.preventDefault();
-        // Вызываем внешний обработчик.
-        // С помощью null сообщаем, что данные были удалены.
-        this._onDataChange(null, this._data);
-      });
-
-    document.addEventListener(`keydown`, this._onEscKeyDown);
   }
 
   closeEditForm() {
@@ -57,7 +43,52 @@ export default class EventController extends AbstractEventController {
         this._container.replaceChild(this._tripEvent.getElement(), this._component.getElement());
       }
       this._component.removeElement();
-      document.removeEventListener(`keydown`, this._onEscKeyDown);
+      document.removeEventListener(`keydown`, this._onEscKeyDownEventHandler);
     }
+  }
+
+  showEditForm() {
+    this._component = new TripEventEditing(this._event, this._allDestinations, this._allOffers);
+    render(this._tripEvent.getElement(), this._component.getElement());
+
+    const container = this._component.getElement().querySelector(`form.event--edit`);
+    const interactiveElements = container.querySelectorAll(`input, button`);
+
+    container
+      .addEventListener(`submit`, (evt) => {
+        evt.preventDefault();
+        if (this._component.isEventValid()) {
+          interactiveElements.forEach((element) => {
+            element.disabled = true;
+          });
+          editEvent(this._component.getEvent())
+            .then(() => {
+              this.saveEvent(this._component.getEvent());
+              this.closeEditForm();
+            })
+            .catch(() => {
+              shakeThat(container);
+              interactiveElements.forEach((element) => {
+                element.disabled = true;
+              });
+            });
+        }
+      });
+
+    this._component.getElement().querySelector(`.event__reset-btn`)
+      .addEventListener(`click`, (evt) => {
+        evt.preventDefault();
+        this.deleteEvent();
+      });
+
+    document.addEventListener(`keydown`, this._onEscKeyDownEventHandler);
+  }
+
+  /**
+   * @param {Event} evt
+   * @private
+   */
+  _onEscKeyDownEventHandler(evt) {
+    EventController.onEscKeyDown(evt, this.closeEditForm);
   }
 }

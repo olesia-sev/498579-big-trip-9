@@ -1,5 +1,4 @@
-import {capitalizeFirstLetter} from "../utils";
-import {typesIn, typesTo} from "../data";
+import {capitalizeFirstLetter, typesIn, typesTo} from "../utils";
 
 /**
  * @param {string} src

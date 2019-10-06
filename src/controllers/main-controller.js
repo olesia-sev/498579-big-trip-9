@@ -1,55 +1,89 @@
-import {getMenuItems} from '../data';
+import {TABS} from "../utils";
 import {
   calculateTotalPriceEvtName,
   finishNewEventCreationEvtName,
   renderItineraryEvtName,
   Position,
-  render
+  render,
+  VISUALLY_HIDDEN_CLASS_NAME
 } from "../utils";
-import {getItineraryTemplate} from '../templates/itinerary';
-import Menu from '../components/menu';
-import TripController from './trip-controller';
-import {getInitialEventsArray} from "../data";
+import {getItineraryTemplate} from "../templates/other";
+import Tabs from "../components/tabs";
+import TripController from "./trip-controller";
+import {getDestinations, getEvents, getOffers} from "../api";
 
 export default class MainController {
   constructor() {
-    this._started = false;
-    this._data = null;
+    this._isInitialized = false;
   }
 
-  start() {
+  init() {
     // MainController инициализируем только один раз
-    if (this._started) {
-      throw new Error(`Already started`);
+    if (this._isInitialized) {
+      throw new Error(`Main controller already initialized`);
     }
 
-    this._data = getInitialEventsArray();
+    this._isInitialized = true;
+
+    const tripController = new TripController(document.querySelector(`.trip-events`));
+    tripController.toggleLoadingMessage();
 
     this._setEventForPriceCalculation();
-    document.dispatchEvent(new CustomEvent(calculateTotalPriceEvtName, {detail: this._data}));
-
     this._setEventForItineraryRender();
-    document.dispatchEvent(new CustomEvent(renderItineraryEvtName, {detail: this._data}));
 
-    const tripController = new TripController(document.querySelector(`.trip-events`), this._data);
-    tripController.init();
+    Promise.all([getEvents(), getDestinations(), getOffers()])
+      .then(([allEvents, allDestinations, allOffers]) => {
+        const events = allEvents.map((event) => {
 
-    const menu = new Menu(getMenuItems());
-    menu.setOnclickCallback((evt) => tripController.toggleStatistics(evt));
-    menu.init();
+          // Офферы из массива allOffers, которые соответствуют типу event
+          const allOffersWithEventType = allOffers.find(({type}) => type === event.type);
 
-    const addNewEventButton = document.querySelector(`.trip-main__event-add-btn`);
-    addNewEventButton.addEventListener(`click`, (evt) => {
-      evt.preventDefault();
-      tripController.startNewEventCreation();
-      tripController.closeAllEvents();
-    });
+          if (
+            allOffersWithEventType &&
+            Array.isArray(allOffersWithEventType.offers) &&
+            allOffersWithEventType.offers.length > 0
+          ) {
+            return Object.assign({}, event, {
+              offers: MainController._mergeOffers(event.offers, allOffersWithEventType.offers)
+            });
+          }
 
-    document.addEventListener(finishNewEventCreationEvtName, () => {
-      tripController.finishNewEventCreation();
-    });
+          return event;
+        });
 
-    this._started = true;
+        tripController.setEvents(events);
+        tripController.setAllDestinations(allDestinations);
+        tripController.setAllOffers(allOffers);
+
+        this._dispatchEvents(events);
+      })
+      .catch(() => {
+        this._dispatchEvents([]);
+      })
+      .finally(() => {
+        document.querySelector(`.trip-info__cost`).classList.remove(VISUALLY_HIDDEN_CLASS_NAME);
+
+        const tabs = new Tabs(TABS);
+        tabs.setOnclickCallback((evt) => tripController.toggleStatistics(evt));
+        tabs.init();
+
+        tripController.init();
+
+        const addNewEventButton = document.querySelector(`.trip-main__event-add-btn`);
+        addNewEventButton.disabled = false;
+        addNewEventButton.addEventListener(`click`, (evt) => {
+          evt.preventDefault();
+          tripController.startNewEventCreation();
+          tripController.closeAllEvents();
+          addNewEventButton.disabled = true;
+          tabs.disabledTabs();
+        });
+        document.addEventListener(finishNewEventCreationEvtName, () => {
+          tripController.finishNewEventCreation();
+          addNewEventButton.disabled = false;
+          tabs.enableTabs();
+        });
+      });
   }
 
   /**
@@ -69,6 +103,9 @@ export default class MainController {
     });
   }
 
+  /**
+   * @private
+   */
   _setEventForPriceCalculation() {
     // Считает общую стоимость
     document.addEventListener(calculateTotalPriceEvtName, ({detail}) => {
@@ -76,7 +113,7 @@ export default class MainController {
         sum += Number(event.price);
         sum += event.offers
           .reduce((offersSum, offer) => {
-            if (offer.isApplied) {
+            if (offer.accepted) {
               offersSum += Number(offer.price);
             }
             return offersSum;
@@ -86,5 +123,35 @@ export default class MainController {
       // Вставляет общую стоимость в шапку
       document.querySelector(`.trip-info__cost-value`).textContent = totalPrice.toString();
     });
+  }
+
+  /**
+   * @param {object[]} detail
+   * @private
+   */
+  _dispatchEvents(detail) {
+    document.dispatchEvent(new CustomEvent(calculateTotalPriceEvtName, {detail}));
+    document.dispatchEvent(new CustomEvent(renderItineraryEvtName, {detail}));
+  }
+
+  /**
+   * Поскольку с api `/offers` приходит набор offer`ов, отличный от того, который приходит от `/points` в event,
+   * смержим два этих массива данных, с условием, что данные конкретного offer`а из event`а приоритетнее,
+   * чем offer`ы из `/offers`.
+   * @param {object[]} eventOffers
+   * @param {object[]} allOffersWithEventType
+   * @return {object[]}
+   * @private
+   */
+  static _mergeOffers(eventOffers, allOffersWithEventType) {
+    const offers = eventOffers.reduce((acc, offer) => {
+      return acc.set(offer.title, offer);
+    }, new Map());
+
+    const allOffers = allOffersWithEventType.reduce((acc, offer) => {
+      return acc.set(offer.title, offer);
+    }, new Map());
+
+    return Array.from(new Map([...allOffers, ...offers]).values());
   }
 }
