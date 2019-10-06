@@ -91,13 +91,13 @@ const getNormalizedEvent = (rawEvent) => {
   }
 
   // noinspection JSUnresolvedVariable
-  const dateFrom = moment(rawEvent.date_from);
+  const dateFrom = moment(rawEvent[`date_from`]);
   if (!dateFrom.isValid()) {
     throw new Error(`Date (date_from) "${dateFrom}" is invalid`);
   }
 
   // noinspection JSUnresolvedVariable
-  const dateTo = moment(rawEvent.date_to);
+  const dateTo = moment(rawEvent[`date_to`]);
   if (!dateTo.isValid()) {
     throw new Error(`Date (date_to) "${dateTo}" is invalid`);
   }
@@ -120,8 +120,8 @@ const getNormalizedEvent = (rawEvent) => {
     },
     dateFrom: Number(dateFrom.format(`x`)),
     dateTo: Number(dateTo.format(`x`)),
-    price: Math.max(rawEvent.base_price, 0) || 0,
-    isFavorite: !!rawEvent.is_favorite,
+    price: Math.max(rawEvent[`base_price`], 0) || 0,
+    isFavorite: !!rawEvent[`is_favorite`],
     offers: getNormalizedOffers(rawEvent.offers)
   };
 };
@@ -164,11 +164,11 @@ const getEventBody = ({type, destination, dateFrom, dateTo, price = 0, isFavorit
   const body = {
     type,
     destination,
-    date_from: dateFrom,
-    date_to: dateTo,
-    base_price: price,
-    is_favorite: isFavorite,
-    offers: getOffersBody(offers)
+    "date_from": dateFrom,
+    "date_to": dateTo,
+    "base_price": price,
+    "is_favorite": isFavorite,
+    "offers": getOffersBody(offers)
   };
   /* eslint-enable camelcase */
 
