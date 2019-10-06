@@ -208,9 +208,9 @@ export default class TripEventEditing extends AbstractComponent {
   _flatpickrInit() {
     /* eslint-disable camelcase */
     const options = {
-      dateFormat: FLATPICKR_DATE_TIME_FORMAT,
-      enableTime: true,
-      time_24hr: true
+      "dateFormat": FLATPICKR_DATE_TIME_FORMAT,
+      "enableTime": true,
+      "time_24hr": true
     };
     /* eslint-enable camelcase */
 
