@@ -39,6 +39,7 @@ export default class EventController extends AbstractEventController {
 
   closeEditForm() {
     if (this._component) {
+      this._component.flatpickrDestroy();
       if (this._container.contains(this._component.getElement())) {
         this._container.replaceChild(this._tripEvent.getElement(), this._component.getElement());
       }
@@ -83,6 +84,7 @@ export default class EventController extends AbstractEventController {
       deleteEvent(this._event.id)
         .then(() => {
           this.deleteEvent();
+          this._component.flatpickrDestroy();
         })
         .catch(() => {
           EventController.afterRequestSending(container, interactiveElements);

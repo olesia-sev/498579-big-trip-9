@@ -38,6 +38,7 @@ export default class NewEventController extends AbstractEventController {
     const interactiveElements = element.querySelectorAll(`input, button`);
 
     const closeForm = () => {
+      this._component.flatpickrDestroy();
       element.parentNode.removeChild(element);
       document.removeEventListener(`keydown`, onEscKeyDown);
       document.dispatchEvent(new CustomEvent(finishNewEventCreationEvtName));

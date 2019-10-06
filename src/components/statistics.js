@@ -9,7 +9,6 @@ export default class Statistics extends AbstractComponent {
    */
   constructor(events) {
     super();
-
     this._events = events;
   }
 
@@ -62,7 +61,9 @@ export default class Statistics extends AbstractComponent {
       labels: [...money.keys()],
       datasets: [{
         label: `€`,
-        data: [...money.values()]
+        data: [...money.values()],
+        fill: false,
+        borderWidth: 1
       }]
     }));
   }
@@ -83,7 +84,9 @@ export default class Statistics extends AbstractComponent {
       labels: [...transport.keys()],
       datasets: [{
         label: `Times`,
-        data: [...transport.values()]
+        data: [...transport.values()],
+        fill: false,
+        borderWidth: 1
       }]
     }));
   }
@@ -105,7 +108,9 @@ export default class Statistics extends AbstractComponent {
       labels: [...timeSpend.keys()],
       datasets: [{
         label: `Hours`,
-        data: [...timeSpend.values()]
+        data: [...timeSpend.values()],
+        fill: false,
+        borderWidth: 1
       }]
     }));
   }
