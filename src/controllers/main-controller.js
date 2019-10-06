@@ -74,7 +74,6 @@ export default class MainController {
         addNewEventButton.addEventListener(`click`, (evt) => {
           evt.preventDefault();
           tripController.startNewEventCreation();
-          tripController.closeAllEvents();
           addNewEventButton.disabled = true;
           tabs.disabledTabs();
         });

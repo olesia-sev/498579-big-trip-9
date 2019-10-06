@@ -57,6 +57,10 @@ export default class TripEventEditing extends AbstractComponent {
       this._setEventHandlerOnFavoriteChange();
     }
 
+    const element = this.getElement();
+    this._submitButton = element.querySelector(`button[type="submit"]`);
+    this._resetButton = element.querySelector(`button[type="reset"]`);
+
     this._preventSaving();
   }
 
@@ -75,6 +79,28 @@ export default class TripEventEditing extends AbstractComponent {
       !!this._event.destination && !!this._event.destination.name &&
       !!this._event.dateTo && !!this._event.dateFrom &&
       this._event.dateTo >= this._event.dateFrom;
+  }
+
+  /**
+   * @param {string} text
+   */
+  setSubmitButtonText(text = `Saving...`) {
+    this._submitButton.textContent = text;
+  }
+
+  setDefaultSubmitButtonText() {
+    this.setSubmitButtonText(`Save`);
+  }
+
+  /**
+   * @param {string} text
+   */
+  setResetButtonText(text = `Deleting...`) {
+    this._resetButton.textContent = text;
+  }
+
+  setDefaultResetButtonText() {
+    this.setResetButtonText(this._mode === Mode.DEFAULT ? `Delete` : `Cancel`);
   }
 
   /**
@@ -120,7 +146,7 @@ export default class TripEventEditing extends AbstractComponent {
         </div>
     
         <button class="event__save-btn btn btn--blue" type="submit">Save</button>
-        <button class="event__reset-btn" type="reset">${this._mode === Mode.ADDING ? `Cancel` : `Delete`}</button>
+        <button class="event__reset-btn" type="reset">${this._mode === Mode.DEFAULT ? `Delete` : `Cancel`}</button>
     
         ${this._mode === Mode.ADDING ? `` : `
           <input id="event-favorite-1" class="event__favorite-checkbox visually-hidden" type="checkbox" name="event-favorite" ${this._event.isFavorite ? `checked` : ``}>
@@ -144,7 +170,25 @@ export default class TripEventEditing extends AbstractComponent {
    * @private
    */
   _preventSaving() {
-    this.getElement().querySelector(`.event__save-btn`).disabled = !this.isEventValid();
+    this._submitButton.disabled = !this.isEventValid();
+  }
+
+  /**
+   * @private
+   */
+  _renderEventDetailsSection() {
+    const eventDetailsSectionTemplate = getEventDetailsSectionTemplate(
+        this._event.offers,
+        this._event.destination.description,
+        this._event.destination.pictures
+    );
+    if (eventDetailsSectionTemplate) {
+      render(
+          this.getElement().querySelector(`.event__header`),
+          eventDetailsSectionTemplate,
+          Position.AFTER_END
+      );
+    }
   }
 
   /**
@@ -241,15 +285,7 @@ export default class TripEventEditing extends AbstractComponent {
 
           // В противном случае отренедерим весь event__details
           default:
-            render(
-                this.getElement().querySelector(`.event__header`),
-                getEventDetailsSectionTemplate(
-                    this._event.offers,
-                    this._event.destination.description,
-                    this._event.destination.pictures
-                ),
-                Position.AFTER_END
-            );
+            this._renderEventDetailsSection();
         }
 
         // Если в DOM не было offers,
@@ -306,18 +342,7 @@ export default class TripEventEditing extends AbstractComponent {
 
           // В противном случае отренедерим весь event__details
           default:
-            const eventDetailsSectionTemplate = getEventDetailsSectionTemplate(
-                this._event.offers,
-                this._event.destination.description,
-                this._event.destination.pictures
-            );
-            if (eventDetailsSectionTemplate) {
-              render(
-                  this.getElement().querySelector(`.event__header`),
-                  eventDetailsSectionTemplate,
-                  Position.AFTER_END
-              );
-            }
+            this._renderEventDetailsSection();
         }
       });
   }

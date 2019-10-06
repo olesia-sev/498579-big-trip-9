@@ -1,6 +1,7 @@
 import TripEventEditing from "../components/trip-event-editing";
 import {Position, Mode, render, finishNewEventCreationEvtName} from "../utils";
 import AbstractEventController from "./abstract-event-controller";
+import {createEvent} from "../api";
 
 export default class NewEventController extends AbstractEventController {
   /**
@@ -34,6 +35,7 @@ export default class NewEventController extends AbstractEventController {
     };
 
     const element = this._component.getElement();
+    const interactiveElements = element.querySelectorAll(`input, button`);
 
     const closeForm = () => {
       element.parentNode.removeChild(element);
@@ -43,17 +45,27 @@ export default class NewEventController extends AbstractEventController {
 
     element.addEventListener(`submit`, (evt) => {
       evt.preventDefault();
+
       if (this._component.isEventValid()) {
-        this.saveEvent(this._component.getEvent());
-        closeForm();
+        NewEventController.beforeRequestSending(element, interactiveElements);
+        this._component.setSubmitButtonText();
+
+        createEvent(this._component.getEvent())
+          .then(({id}) => {
+            this.saveEvent(Object.assign({}, this._component.getEvent(), {id}));
+            closeForm();
+          })
+          .catch(() => {
+            NewEventController.afterRequestSending(element, interactiveElements);
+            this._component.setDefaultSubmitButtonText();
+          });
       }
     });
 
-    element.querySelector(`.event__reset-btn`)
-      .addEventListener(`click`, (evt) => {
-        evt.preventDefault();
-        closeForm();
-      });
+    element.addEventListener(`reset`, (evt) => {
+      evt.preventDefault();
+      closeForm();
+    });
 
     render(this._container, element, Position.BEFORE_BEGIN);
   }

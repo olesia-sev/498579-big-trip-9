@@ -93,7 +93,6 @@ export default class TripController {
     this._renderEventsByDays([...this._events]);
 
     this.toggleLoadingMessage();
-    this.toggleEmptyPageMessage();
   }
 
   startNewEventCreation() {
@@ -104,14 +103,29 @@ export default class TripController {
           this._allDestinations,
           this._allOffers
       );
+
+      this._closeAllEvents();
+
       this._creatingEvent.init();
+
       this.toggleEmptyPageMessage();
+
+      document.querySelectorAll(`.event__rollup-btn`).forEach((button) => {
+        button.disabled = true;
+        button.classList.add(VISUALLY_HIDDEN_CLASS_NAME);
+      });
     }
   }
 
   finishNewEventCreation() {
     this._creatingEvent = null;
+
     this.toggleEmptyPageMessage();
+
+    document.querySelectorAll(`.event__rollup-btn`).forEach((button) => {
+      button.disabled = false;
+      button.classList.remove(VISUALLY_HIDDEN_CLASS_NAME);
+    });
   }
 
   toggleLoadingMessage() {
@@ -138,7 +152,7 @@ export default class TripController {
     }
   }
 
-  closeAllEvents() {
+  _closeAllEvents() {
     this._onFinishEdit();
   }
 

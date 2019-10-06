@@ -231,11 +231,25 @@ export const isEscEvent = (evt, action) => {
 const SHAKE_DURATION = 600;
 
 /**
- * @param {Element} element
+ * @param {HTMLElement} element
  */
 export const shakeThat = (element) => {
-  element.style = `animation: shake ${SHAKE_DURATION / 1000}s;`;
+  element.style.animation = `shake ${SHAKE_DURATION / 1000}s`;
   setTimeout(() => {
-    element.style = ``;
+    element.style.animation = null;
   }, SHAKE_DURATION);
+};
+
+/**
+ * @param {HTMLElement} element
+ */
+export const showError = (element) => {
+  element.style.boxShadow = `0 0 5px 5px red`;
+};
+
+/**
+ * @param {HTMLElement} element
+ */
+export const hideError = (element) => {
+  element.style.boxShadow = null;
 };
