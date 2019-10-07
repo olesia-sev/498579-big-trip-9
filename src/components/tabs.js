@@ -1,5 +1,6 @@
 import AbstractComponent from "./absctract-component";
-import {tabClickEvtName, Position, render} from "../utils";
+import {render} from "../utils";
+import {tabClickEvtName, Position} from "../constants";
 
 export default class Tabs extends AbstractComponent {
   /**
@@ -9,14 +10,14 @@ export default class Tabs extends AbstractComponent {
     super();
     this._tabs = tabs;
     this._isDisabled = false;
-    this._onClickCallback = () => null;
+    this._onTabClickCallback = () => null;
   }
 
   /**
    * @param {function} callback
    */
   setOnclickCallback(callback) {
-    this._onClickCallback = callback;
+    this._onTabClickCallback = callback;
   }
 
   init() {
@@ -73,7 +74,7 @@ export default class Tabs extends AbstractComponent {
     render(document.querySelectorAll(`.trip-controls h2`)[0], this.getTemplate(), Position.AFTER_END);
 
     if (!this._isDisabled) {
-      document.querySelector(`.trip-tabs`).addEventListener(`click`, this._onClickCallback);
+      document.querySelector(`.trip-tabs`).addEventListener(`click`, this._onTabClickCallback);
     }
   }
 }

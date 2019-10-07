@@ -1,8 +1,10 @@
-import TripEvent from "../components/trip-event";
-import TripEventEditing from "../components/trip-event-editing";
-import {Position, render} from "../utils";
 import AbstractEventController from "./abstract-event-controller";
 import {deleteEvent, updateEvent} from "../api";
+import TripEventEditing from "../components/trip-event-editing";
+import TripEvent from "../components/trip-event";
+import {render} from "../utils";
+import {Position} from "../constants";
+
 
 export default class EventController extends AbstractEventController {
   /**

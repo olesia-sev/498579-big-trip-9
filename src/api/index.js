@@ -156,7 +156,7 @@ const getOffersBody = (offers) => {
 
 /**
  * @param {object} event
- * @param {string|undefined} id
+ * @param {string|null} id
  * @return {object}
  */
 const getEventBody = ({type, destination, dateFrom, dateTo, price = 0, isFavorite = false, offers = []}, id) => {
@@ -187,7 +187,7 @@ export const createEvent = (event) => {
   return fetch(`${EVENTS_ENDPOINT}`, Object.assign(DEFAULT_FETCH_OPTIONS, {
     method: `POST`,
     headers: Object.assign({}, DEFAULT_FETCH_OPTIONS.headers, {'Content-Type': `application/json`}),
-    body: JSON.stringify(getEventBody(event, undefined))
+    body: JSON.stringify(getEventBody(event, null))
   }))
     .then(responseToJson)
     .then((rawEvent) => {

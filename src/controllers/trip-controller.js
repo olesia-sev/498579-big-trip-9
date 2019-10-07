@@ -1,13 +1,15 @@
 import moment from "moment";
 import EventDaysContainer from "../components/trip-days-container";
+import {render} from "../utils";
 import {
   calculateTotalPriceEvtName,
+  renderItineraryEvtName,
   tabClickEvtName,
   Position,
-  render,
-  renderItineraryEvtName,
-  VISUALLY_HIDDEN_CLASS_NAME
-} from "../utils";
+  VISUALLY_HIDDEN_CLASS_NAME,
+  FilterType,
+  SortType
+} from "../constants";
 import TripDayCard from "../components/trip-day-card";
 import DayInfo from "../components/day-info";
 import EventsList from "../components/events-list";
@@ -16,7 +18,6 @@ import EventController from "../controllers/event-controller";
 import NewEventController from "./new-event-controller";
 import Statistics from "../components/statistics";
 import Filters from "../components/filters";
-import {FilterTypes, SortTypes} from "../utils";
 import {getEmptyMessageTemplate, getLoadingMessageTemplate} from "../templates/other";
 
 export default class TripController {
@@ -33,13 +34,13 @@ export default class TripController {
 
     this._eventsDaysList = new EventDaysContainer();
 
-    this._sort = new Sort(Object.values(SortTypes));
+    this._sort = new Sort(Object.values(SortType));
     this._sort.setOnSortCallback(this._onSort.bind(this));
-    this._selectedSortType = SortTypes.DEFAULT;
+    this._selectedSortType = SortType.DEFAULT;
 
-    this._filters = new Filters(Object.values(FilterTypes));
+    this._filters = new Filters(Object.values(FilterType));
     this._filters.setOnFilterCallback(this._onFilter.bind(this));
-    this._selectedFilterType = FilterTypes.DEFAULT;
+    this._selectedFilterType = FilterType.DEFAULT;
 
     // Храним создаваемую карточку для определения состояния
     this._creatingEvent = null;
@@ -129,10 +130,10 @@ export default class TripController {
   }
 
   toggleLoadingMessage() {
-    const loadingMessageElement = document.querySelector(`.js-loading-message`);
+    const element = document.querySelector(`.js-loading-message`);
 
-    if (loadingMessageElement) {
-      loadingMessageElement.parentNode.removeChild(loadingMessageElement);
+    if (element) {
+      element.parentNode.removeChild(element);
     } else {
       render(this._container, getLoadingMessageTemplate(), Position.BEFORE_END);
     }
@@ -142,10 +143,10 @@ export default class TripController {
     this._toggleSortAndFilterContainer();
 
     if (this._events.length === 0) {
-      const emptyMessageElement = document.querySelector(`.js-empty-message`);
+      const element = document.querySelector(`.js-empty-message`);
 
-      if (emptyMessageElement) {
-        emptyMessageElement.parentNode.removeChild(emptyMessageElement);
+      if (element) {
+        element.parentNode.removeChild(element);
       } else {
         render(this._container, getEmptyMessageTemplate(), Position.BEFORE_END);
       }
@@ -308,13 +309,13 @@ export default class TripController {
       switch (this._selectedFilterType) {
         // Список запланированных точек маршрута, т. е. точек,
         // у которых дата начала события больше, чем текущая
-        case FilterTypes.FUTURE: {
+        case FilterType.FUTURE: {
           return events.filter(({dateFrom}) => dateFrom > currentTimestamp);
         }
 
         // Список пройденных точек маршрута, т. е. точек,
         // у которых дата прибытия в точку маршрута меньше, чем текущая;
-        case FilterTypes.PAST: {
+        case FilterType.PAST: {
           return events.filter(({dateTo}) => dateTo < currentTimestamp);
         }
 
@@ -327,12 +328,12 @@ export default class TripController {
     // Сортировка работает в одном направлении — от максимального к минимальному
     switch (this._selectedSortType) {
       // При сортировке по длительности в начале списка окажутся самые долгие точки маршрута
-      case SortTypes.TIME: {
+      case SortType.TIME: {
         return getFilteredEvents([...this._events]).sort((a, b) => (b.dateTo - b.dateFrom) - (a.dateTo - a.dateFrom));
       }
 
       // При сортировке по стоимости в начале списка окажутся самые дорогие точки маршрута
-      case SortTypes.PRICE: {
+      case SortType.PRICE: {
         return getFilteredEvents([...this._events]).sort((a, b) => b.price - a.price);
       }
 
@@ -352,7 +353,7 @@ export default class TripController {
     if (this._events.length) {
       const tripSortItemDay = document.querySelector(`.trip-sort__item--day`);
 
-      if (this._selectedSortType === SortTypes.DEFAULT) {
+      if (this._selectedSortType === SortType.DEFAULT) {
         tripSortItemDay.textContent = `Day`;
         this._renderEventsByDays(this._getSortedEventsWithFilter());
       } else {
@@ -375,7 +376,7 @@ export default class TripController {
   _onSort(evt) {
     const {value} = evt.currentTarget;
 
-    if (this._sort.getAllowedSortTypes().includes(value)) {
+    if (this._sort.getAllowedSortType().includes(value)) {
       this._selectedSortType = value;
       this._render();
     }
@@ -387,7 +388,7 @@ export default class TripController {
    */
   _onFilter(evt) {
     const {value} = evt.currentTarget;
-    if (this._filters.getAllowedFilterTypes().includes(value)) {
+    if (this._filters.getAllowedFilterType().includes(value)) {
       this._selectedFilterType = value;
       this._render();
     }

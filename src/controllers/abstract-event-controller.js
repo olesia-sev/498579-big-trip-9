@@ -1,4 +1,4 @@
-import {hideError, isEscEvent, shakeThat, showError} from "../utils";
+import {isEscEvent, shakeThat, hideError, showError} from "../utils";
 
 export default class AbstractEventController {
   /**

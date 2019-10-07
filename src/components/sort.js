@@ -1,5 +1,6 @@
 import AbstractComponent from "./absctract-component";
-import {Position, render, SortTypes} from "../utils";
+import {render} from "../utils";
+import {Position, SortType} from "../constants";
 
 export default class Sort extends AbstractComponent {
   /**
@@ -21,7 +22,7 @@ export default class Sort extends AbstractComponent {
   /**
    * @return {string[]}
    */
-  getAllowedSortTypes() {
+  getAllowedSortType() {
     return this._items;
   }
 
@@ -40,12 +41,12 @@ export default class Sort extends AbstractComponent {
       <span class="trip-sort__item trip-sort__item--day">Day</span>
   
       <div class="trip-sort__item trip-sort__item--event">
-        <input id="sort-event" class="trip-sort__input visually-hidden" type="radio" name="trip-sort" value="${SortTypes.DEFAULT}" checked>
+        <input id="sort-event" class="trip-sort__input visually-hidden" type="radio" name="trip-sort" value="${SortType.DEFAULT}" checked>
         <label class="trip-sort__btn" for="sort-event">Event</label>
       </div>
   
       <div class="trip-sort__item trip-sort__item--time">
-        <input id="sort-time" class="trip-sort__input visually-hidden" type="radio" name="trip-sort" value="${SortTypes.TIME}">
+        <input id="sort-time" class="trip-sort__input visually-hidden" type="radio" name="trip-sort" value="${SortType.TIME}">
         <label class="trip-sort__btn" for="sort-time">
           Time
           <svg class="trip-sort__direction-icon" width="8" height="10" viewBox="0 0 8 10">
@@ -55,7 +56,7 @@ export default class Sort extends AbstractComponent {
       </div>
   
       <div class="trip-sort__item trip-sort__item--price">
-        <input id="sort-price" class="trip-sort__input visually-hidden" type="radio" name="trip-sort" value="${SortTypes.PRICE}">
+        <input id="sort-price" class="trip-sort__input visually-hidden" type="radio" name="trip-sort" value="${SortType.PRICE}">
         <label class="trip-sort__btn" for="sort-price">
           Price
           <svg class="trip-sort__direction-icon" width="8" height="10" viewBox="0 0 8 10">
