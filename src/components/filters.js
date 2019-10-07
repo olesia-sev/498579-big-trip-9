@@ -1,5 +1,6 @@
 import AbstractComponent from "./absctract-component";
-import {capitalizeFirstLetter, Position, render} from "../utils";
+import {capitalizeFirstLetter, render} from "../utils";
+import {Position} from "../constants";
 
 export default class Filters extends AbstractComponent {
   /**
@@ -21,7 +22,7 @@ export default class Filters extends AbstractComponent {
   /**
    * @return {string[]}
    */
-  getAllowedFilterTypes() {
+  getAllowedFilterType() {
     return this._items;
   }
 

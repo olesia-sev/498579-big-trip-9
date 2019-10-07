@@ -1,10 +1,11 @@
 import "flatpickr/dist/themes/light.css";
 import flatpickr from "flatpickr";
 import moment from "moment";
-import {getTypeTitle, isEventTypeAllowed} from "../utils";
 import AbstractComponent from "./absctract-component";
-import {FLATPICKR_DATE_TIME_FORMAT, MOMENT_DATE_TIME_FORMAT, Mode, Position, render, clone} from "../utils";
+import {getTypeTitle, isEventTypeAllowed} from "../utils";
 import {getEventTypeLabelTemplate, getEventTypesTemplate} from "../templates/event-type";
+import {render, clone} from "../utils";
+import {FLATPICKR_DATE_TIME_FORMAT, MOMENT_DATE_TIME_FORMAT, Mode, Position} from "../constants";
 import {
   getDestinationSectionTemplate,
   getEventDetailsSectionTemplate,
@@ -185,6 +186,15 @@ export default class TripEventEditing extends AbstractComponent {
   }
 
   /**
+   * @param {string} value
+   * @return {object|undefined}
+   * @private
+   */
+  _findDestinationWithName(value) {
+    return this._allDestinations.find(({name}) => name === value);
+  }
+
+  /**
    * @private
    */
   _renderEventDetailsSection() {
@@ -315,50 +325,58 @@ export default class TripEventEditing extends AbstractComponent {
    * @private
    */
   _setEventHandlerOnDestinationChange() {
-    this.getElement()
-      .querySelector(`.event__input--destination`)
-      .addEventListener(`change`, (evt) => {
-        const {value} = evt.currentTarget;
-        const destination = this._allDestinations.find(({name}) => name === value);
-        if (!destination) {
-          evt.currentTarget.value = this._event.destination.name;
-          return;
-        }
+    const element = this.getElement().querySelector(`.event__input--destination`);
 
-        this._event.destination = destination;
+    element.addEventListener(`blur`, (evt) => {
+      const {value} = evt.currentTarget;
+      if (!this._findDestinationWithName(value)) {
+        evt.currentTarget.value = this._event.destination.name;
+      }
+    });
 
-        this._preventSaving();
+    element.addEventListener(`input`, (evt) => {
+      const {value} = evt.currentTarget;
 
-        switch (true) {
-          // Если в DOM уже есть section для description и pictures, перерисуем этот section
-          case this.getElement().querySelector(`.event__section--destination`) !== null:
+      const destination = this._findDestinationWithName(value);
+
+      if (!destination) {
+        return;
+      }
+
+      this._event.destination = destination;
+
+      this._preventSaving();
+
+      switch (true) {
+        // Если в DOM уже есть section для description и pictures, перерисуем этот section
+        case this.getElement().querySelector(`.event__section--destination`) !== null:
+          render(
+              this.getElement().querySelector(`.event__section--destination`),
+              getDestinationSectionTemplate(this._event.destination.description, this._event.destination.pictures)
+          );
+          break;
+
+        // Если в DOM есть section event__details,
+        // отрендерим section для description и pictures в конце этого event__details
+        case this.getElement().querySelector(`.event__details`) !== null:
+          const destinationSectionTemplate = getDestinationSectionTemplate(
+              this._event.destination.description,
+              this._event.destination.pictures
+          );
+          if (destinationSectionTemplate) {
             render(
-                this.getElement().querySelector(`.event__section--destination`),
-                getDestinationSectionTemplate(this._event.destination.description, this._event.destination.pictures)
+                this.getElement().querySelector(`.event__details`),
+                destinationSectionTemplate,
+                Position.BEFORE_END
             );
-            break;
+          }
+          break;
 
-          // Если в DOM есть section event__details,
-          // отрендерим section для description и pictures в конце этого event__details
-          case this.getElement().querySelector(`.event__details`) !== null:
-            const destinationSectionTemplate = getDestinationSectionTemplate(
-                this._event.destination.description,
-                this._event.destination.pictures
-            );
-            if (destinationSectionTemplate) {
-              render(
-                  this.getElement().querySelector(`.event__details`),
-                  destinationSectionTemplate,
-                  Position.BEFORE_END
-              );
-            }
-            break;
-
-          // В противном случае отренедерим весь event__details
-          default:
-            this._renderEventDetailsSection();
-        }
-      });
+        // В противном случае отренедерим весь event__details
+        default:
+          this._renderEventDetailsSection();
+      }
+    });
   }
 
   /**
@@ -399,11 +417,7 @@ export default class TripEventEditing extends AbstractComponent {
       .addEventListener(`change`, () => {
         this._event.isFavorite = !this._event.isFavorite;
         const element = this.getElement().querySelector(`.event__favorite-btn .visually-hidden`);
-        if (this._event.isFavorite) {
-          element.textContent = `Remove from favorite`;
-        } else {
-          element.textContent = `Add to favorite`;
-        }
+        element.textContent = this._event.isFavorite ? `Remove from favorite` : `Add to favorite`;
       });
   }
 }

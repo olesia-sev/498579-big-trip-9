@@ -1,6 +1,7 @@
-import AbstractComponent from "./absctract-component";
 import moment from "moment";
-import {MOMENT_TIME_FORMAT, getTypeTitle} from "../utils";
+import AbstractComponent from "./absctract-component";
+import {getTypeTitle} from "../utils";
+import {MOMENT_TIME_FORMAT} from "../constants";
 
 export default class TripEvent extends AbstractComponent {
   /**
