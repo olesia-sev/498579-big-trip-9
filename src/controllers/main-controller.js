@@ -4,10 +4,8 @@ import {getDestinations, getEvents, getOffers} from "../api";
 import {render} from "../utils";
 import {
   TABS,
-  calculateTotalPriceEvtName,
-  finishNewEventCreationEvtName,
-  renderItineraryEvtName,
   Position,
+  CustomEventName,
   VISUALLY_HIDDEN_CLASS_NAME
 } from "../constants";
 import {getItineraryTemplate} from "../templates/other";
@@ -89,7 +87,7 @@ export default class MainController {
       addNewEventButton.disabled = true;
       tabs.disabledTabs();
     });
-    document.addEventListener(finishNewEventCreationEvtName, () => {
+    document.addEventListener(CustomEventName.FINISH_NEW_EVENT_CREATION, () => {
       this._tripController.finishNewEventCreation();
       addNewEventButton.disabled = false;
       tabs.enableTabs();
@@ -101,7 +99,7 @@ export default class MainController {
    */
   static _setEventForPriceCalculation() {
     // Считает общую стоимость
-    document.addEventListener(calculateTotalPriceEvtName, ({detail}) => {
+    document.addEventListener(CustomEventName.CALCULATE_TOTAL_PRICE, ({detail}) => {
       const totalPrice = detail.reduce((sum, event) => {
         sum += Number(event.price);
         sum += event.offers
@@ -123,7 +121,7 @@ export default class MainController {
    * @private
    */
   static _setEventForItineraryRender() {
-    document.addEventListener(renderItineraryEvtName, ({detail}) => {
+    document.addEventListener(CustomEventName.RENDER_ITINERARY, ({detail}) => {
       const container = document.querySelector(`.trip-info__main`);
       if (container) {
         container.parentNode.removeChild(container);
@@ -140,8 +138,8 @@ export default class MainController {
    * @private
    */
   static _dispatchEvents(detail) {
-    document.dispatchEvent(new CustomEvent(calculateTotalPriceEvtName, {detail}));
-    document.dispatchEvent(new CustomEvent(renderItineraryEvtName, {detail}));
+    document.dispatchEvent(new CustomEvent(CustomEventName.CALCULATE_TOTAL_PRICE, {detail}));
+    document.dispatchEvent(new CustomEvent(CustomEventName.RENDER_ITINERARY, {detail}));
   }
 
   /**

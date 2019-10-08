@@ -19,26 +19,6 @@ export const MOMENT_DATE_TIME_FORMAT = `DD.MM.YYYY HH:mm`;
 export const MOMENT_TIME_FORMAT = `HH:mm`;
 
 /**
- * @type {string}
- */
-export const finishNewEventCreationEvtName = `finish-new-event-creation`;
-
-/**
- * @type {string}
- */
-export const calculateTotalPriceEvtName = `calculate-total-price`;
-
-/**
- * @type {string}
- */
-export const renderItineraryEvtName = `render-itinerary`;
-
-/**
- * @type {string}
- */
-export const tabClickEvtName = `tab-click`;
-
-/**
  * @type {number}
  */
 export const ESC_KEYCODE = 27;
@@ -47,6 +27,13 @@ export const ESC_KEYCODE = 27;
  * @type {number}
  */
 export const SHAKE_DURATION = 600;
+
+export const CustomEventName = {
+  FINISH_NEW_EVENT_CREATION: `finish-new-event-creation`,
+  CALCULATE_TOTAL_PRICE: `calculate-total-price`,
+  RENDER_ITINERARY: `render-itinerary`,
+  TAB_CLICK: `tab-click`
+};
 
 /**
  * @type {object[]}

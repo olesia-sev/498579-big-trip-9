@@ -2,7 +2,7 @@ import AbstractEventController from "./abstract-event-controller";
 import TripEventEditing from "../components/trip-event-editing";
 import {createEvent} from "../api";
 import {render} from "../utils";
-import {Position, Mode, finishNewEventCreationEvtName} from "../constants";
+import {Position, Mode, CustomEventName} from "../constants";
 
 export default class NewEventController extends AbstractEventController {
   /**
@@ -42,7 +42,7 @@ export default class NewEventController extends AbstractEventController {
       this._component.flatpickrDestroy();
       element.parentNode.removeChild(element);
       document.removeEventListener(`keydown`, onEscKeyDown);
-      document.dispatchEvent(new CustomEvent(finishNewEventCreationEvtName));
+      document.dispatchEvent(new CustomEvent(CustomEventName.FINISH_NEW_EVENT_CREATION));
     };
 
     element.addEventListener(`submit`, (evt) => {

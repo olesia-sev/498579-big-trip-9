@@ -1,6 +1,6 @@
 import AbstractComponent from "./absctract-component";
 import {render} from "../utils";
-import {tabClickEvtName, Position} from "../constants";
+import {CustomEventName, Position} from "../constants";
 
 export default class Tabs extends AbstractComponent {
   /**
@@ -21,7 +21,7 @@ export default class Tabs extends AbstractComponent {
   }
 
   init() {
-    document.addEventListener(tabClickEvtName, ({detail}) => {
+    document.addEventListener(CustomEventName.TAB_CLICK, ({detail}) => {
       this._setActiveTab(detail);
       this._render();
     });

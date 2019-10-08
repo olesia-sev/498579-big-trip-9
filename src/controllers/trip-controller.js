@@ -2,9 +2,7 @@ import moment from "moment";
 import EventDaysContainer from "../components/trip-days-container";
 import {render} from "../utils";
 import {
-  calculateTotalPriceEvtName,
-  renderItineraryEvtName,
-  tabClickEvtName,
+  CustomEventName,
   Position,
   VISUALLY_HIDDEN_CLASS_NAME,
   FilterType,
@@ -165,7 +163,7 @@ export default class TripController {
 
     const {textContent} = evt.target;
 
-    document.dispatchEvent(new CustomEvent(tabClickEvtName, {detail: textContent}));
+    document.dispatchEvent(new CustomEvent(CustomEventName.TAB_CLICK, {detail: textContent}));
 
     const addNewEventButton = document.querySelector(`.trip-main__event-add-btn`);
 
@@ -420,8 +418,8 @@ export default class TripController {
 
     this._events = this._events.sort(TripController._defaultSort);
 
-    document.dispatchEvent(new CustomEvent(calculateTotalPriceEvtName, {detail: this._events}));
-    document.dispatchEvent(new CustomEvent(renderItineraryEvtName, {detail: this._events}));
+    document.dispatchEvent(new CustomEvent(CustomEventName.CALCULATE_TOTAL_PRICE, {detail: this._events}));
+    document.dispatchEvent(new CustomEvent(CustomEventName.RENDER_ITINERARY, {detail: this._events}));
     this._render();
   }
 
