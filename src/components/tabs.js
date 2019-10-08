@@ -10,14 +10,14 @@ export default class Tabs extends AbstractComponent {
     super();
     this._tabs = tabs;
     this._isDisabled = false;
-    this._onTabClickCallback = () => null;
+    this._onTabClick = () => null;
   }
 
   /**
    * @param {function} callback
    */
   setOnclickCallback(callback) {
-    this._onTabClickCallback = callback;
+    this._onTabClick = callback;
   }
 
   init() {
@@ -74,7 +74,7 @@ export default class Tabs extends AbstractComponent {
     render(document.querySelectorAll(`.trip-controls h2`)[0], this.getTemplate(), Position.AFTER_END);
 
     if (!this._isDisabled) {
-      document.querySelector(`.trip-tabs`).addEventListener(`click`, this._onTabClickCallback);
+      document.querySelector(`.trip-tabs`).addEventListener(`click`, this._onTabClick);
     }
   }
 }
