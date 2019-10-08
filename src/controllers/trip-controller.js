@@ -128,10 +128,10 @@ export default class TripController {
   }
 
   toggleLoadingMessage() {
-    const element = document.querySelector(`.js-loading-message`);
+    const loadingMessage = document.querySelector(`.js-loading-message`);
 
-    if (element) {
-      element.parentNode.removeChild(element);
+    if (loadingMessage) {
+      loadingMessage.parentNode.removeChild(loadingMessage);
     } else {
       render(this._container, getLoadingMessageTemplate(), Position.BEFORE_END);
     }
@@ -141,10 +141,10 @@ export default class TripController {
     this._toggleSortAndFilterContainer();
 
     if (this._events.length === 0) {
-      const element = document.querySelector(`.js-empty-message`);
+      const emptyMessage = document.querySelector(`.js-empty-message`);
 
-      if (element) {
-        element.parentNode.removeChild(element);
+      if (emptyMessage) {
+        emptyMessage.parentNode.removeChild(emptyMessage);
       } else {
         render(this._container, getEmptyMessageTemplate(), Position.BEFORE_END);
       }

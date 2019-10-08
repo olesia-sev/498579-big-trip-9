@@ -325,16 +325,16 @@ export default class TripEventEditing extends AbstractComponent {
    * @private
    */
   _setEventHandlerOnDestinationChange() {
-    const element = this.getElement().querySelector(`.event__input--destination`);
+    const destinationInput = this.getElement().querySelector(`.event__input--destination`);
 
-    element.addEventListener(`blur`, (evt) => {
+    destinationInput.addEventListener(`blur`, (evt) => {
       const {value} = evt.currentTarget;
       if (!this._findDestinationWithName(value)) {
         evt.currentTarget.value = this._event.destination.name;
       }
     });
 
-    element.addEventListener(`input`, (evt) => {
+    destinationInput.addEventListener(`input`, (evt) => {
       const {value} = evt.currentTarget;
 
       const destination = this._findDestinationWithName(value);
