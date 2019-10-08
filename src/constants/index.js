@@ -1,24 +1,4 @@
 /**
- * @type {string}
- */
-export const VISUALLY_HIDDEN_CLASS_NAME = `visually-hidden`;
-
-/**
- * @type {string}
- */
-export const FLATPICKR_DATE_TIME_FORMAT = `d.m.Y H:i`;
-
-/**
- * @type {string}
- */
-export const MOMENT_DATE_TIME_FORMAT = `DD.MM.YYYY HH:mm`;
-
-/**
- * @type {string}
- */
-export const MOMENT_TIME_FORMAT = `HH:mm`;
-
-/**
  * @type {number}
  */
 export const ESC_KEYCODE = 27;
@@ -28,12 +8,10 @@ export const ESC_KEYCODE = 27;
  */
 export const SHAKE_DURATION = 600;
 
-export const CustomEventName = {
-  FINISH_NEW_EVENT_CREATION: `finish-new-event-creation`,
-  CALCULATE_TOTAL_PRICE: `calculate-total-price`,
-  RENDER_ITINERARY: `render-itinerary`,
-  TAB_CLICK: `tab-click`
-};
+/**
+ * @type {string}
+ */
+export const VISUALLY_HIDDEN_CLASS_NAME = `visually-hidden`;
 
 /**
  * @type {object[]}
@@ -48,6 +26,25 @@ export const TABS = [
     isActive: false
   }
 ];
+
+/**
+ * @type {{MOMENT_DATE_TIME: string, MOMENT_TIME: string, FLATPICKR_DATE_TIME: string}}
+ */
+export const DateTimeFormat = {
+  FLATPICKR_DATE_TIME: `d.m.Y H:i`,
+  MOMENT_DATE_TIME: `DD.MM.YYYY HH:mm`,
+  MOMENT_TIME: `HH:mm`
+};
+
+/**
+ * @type {{TAB_CLICK: string, FINISH_NEW_EVENT_CREATION: string, RENDER_ITINERARY: string, CALCULATE_TOTAL_PRICE: string}}
+ */
+export const CustomEventName = {
+  FINISH_NEW_EVENT_CREATION: `finish-new-event-creation`,
+  CALCULATE_TOTAL_PRICE: `calculate-total-price`,
+  RENDER_ITINERARY: `render-itinerary`,
+  TAB_CLICK: `tab-click`
+};
 
 /**
  * @type {{beforeend: {method: string}, beforebegin: {method: string}, afterend: {method: string}, afterbegin: {method: string}}}

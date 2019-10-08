@@ -5,7 +5,7 @@ import AbstractComponent from "./absctract-component";
 import {getTypeTitle, isEventTypeAllowed} from "../utils";
 import {getEventTypeLabelTemplate, getEventTypesTemplate} from "../templates/event-type";
 import {render, clone} from "../utils";
-import {FLATPICKR_DATE_TIME_FORMAT, MOMENT_DATE_TIME_FORMAT, Mode, Position} from "../constants";
+import {DateTimeFormat, Mode, Position} from "../constants";
 import {
   getDestinationSectionTemplate,
   getEventDetailsSectionTemplate,
@@ -141,12 +141,12 @@ export default class TripEventEditing extends AbstractComponent {
           <label class="visually-hidden" for="event-start-time-1">
             From
           </label>
-          <input class="event__input event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${moment(this._event.dateFrom).format(MOMENT_DATE_TIME_FORMAT)}">
+          <input class="event__input event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${moment(this._event.dateFrom).format(DateTimeFormat.MOMENT_DATE_TIME)}">
           &mdash;
           <label class="visually-hidden" for="event-end-time-1">
             To
           </label>
-          <input class="event__input event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${moment(this._event.dateTo).format(MOMENT_DATE_TIME_FORMAT)}">
+          <input class="event__input event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${moment(this._event.dateTo).format(DateTimeFormat.MOMENT_DATE_TIME)}">
         </div>
     
         <div class="event__field-group event__field-group--price">
@@ -218,7 +218,7 @@ export default class TripEventEditing extends AbstractComponent {
   _flatpickrInit() {
     /* eslint-disable camelcase */
     const options = {
-      "dateFormat": FLATPICKR_DATE_TIME_FORMAT,
+      "dateFormat": DateTimeFormat.FLATPICKR_DATE_TIME,
       "enableTime": true,
       "time_24hr": true
     };

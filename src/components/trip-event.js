@@ -1,7 +1,7 @@
 import moment from "moment";
 import AbstractComponent from "./absctract-component";
 import {getTypeTitle} from "../utils";
-import {MOMENT_TIME_FORMAT} from "../constants";
+import {DateTimeFormat} from "../constants";
 
 export default class TripEvent extends AbstractComponent {
   /**
@@ -31,9 +31,9 @@ export default class TripEvent extends AbstractComponent {
       
         <div class="event__schedule">
           <p class="event__time">
-            <time class="event__start-time">${moment(this._dateFrom).format(MOMENT_TIME_FORMAT)}</time>
+            <time class="event__start-time">${moment(this._dateFrom).format(DateTimeFormat.MOMENT_TIME)}</time>
             &mdash;
-            <time class="event__end-time">${moment(this._dateTo).format(MOMENT_TIME_FORMAT)}</time>
+            <time class="event__end-time">${moment(this._dateTo).format(DateTimeFormat.MOMENT_TIME)}</time>
           </p>
           <p class="event__duration">${this._getDuration()}</p>
         </div>
